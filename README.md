@@ -1,67 +1,63 @@
-# Axis v1 Open Design Docs
+# Axis v1 Open Design & Requirements
 
-This directory is the source of truth for the Axis v1 Open Design.
+This repository is the source of truth for Axis v1 protocol design and implementation requirements.
 
-Axis v1 is designed as an open DTF protocol on Solana. A DTF, or Dex Traded Fund, is a tradable position token backed by a basket of actual underlying reserve assets.
+Axis v1 is an open DTF protocol on Solana.
 
-These docs intentionally separate product/protocol design, execution policy, program specs, and diagrams.
+A DTF, or Dex Traded Fund, is a tradable position token backed by a basket of actual underlying reserve assets. Users mint DTFs with USDC, Axis composes the underlying reserve assets through controlled CPI execution, and users redeem DTFs back to USDC by unwinding the reserve assets.
 
-## Directory Structure
+## Start Here
+
+Read these in order:
+
+1. [Requirements Overview](./requirements/00-requirements-overview.md)
+2. [Definitions & Decision Log](./requirements/01-definitions-and-decision-log.md)
+3. [DTF Market Requirements](./requirements/02-dtf-market-requirements.md)
+4. [Mint Requirements](./requirements/03-mint-requirements.md)
+5. [Redeem Requirements](./requirements/04-redeem-requirements.md)
+6. [Swap CPI Execution Requirements](./requirements/05-swap-cpi-execution-requirements.md)
+7. [Pricing & NAV Requirements](./requirements/06-pricing-nav-requirements.md)
+8. [Execution Policy & Risk Controls](./requirements/07-execution-policy-risk-controls.md)
+9. [Asset Universe Requirements](./requirements/08-asset-universe-requirements.md)
+10. [Admin / Safety Requirements](./requirements/09-admin-safety-requirements.md)
+11. [Non-Functional Requirements](./requirements/10-non-functional-requirements.md)
+12. [Traceability Matrix](./requirements/11-traceability-matrix.md)
+
+## Program Specs
+
+- [Accounts Spec](./specs/accounts.md)
+- [Instructions Spec](./specs/instructions.md)
+- [Math Spec](./specs/math.md)
+- [Error Spec](./specs/errors.md)
+- [Constants Spec](./specs/constants.md)
+- [Testing Spec](./specs/testing.md)
+
+## Issue Blueprints
+
+Use these as the starting point for GitHub issues:
+
+- [Issue Breakdown](./issue-blueprints/00-issue-breakdown.md)
+- [Protocol Config & Registry Issues](./issue-blueprints/01-protocol-config-and-registry-issues.md)
+- [DTF Market Issues](./issue-blueprints/02-dtf-market-issues.md)
+- [Mint / Redeem Issues](./issue-blueprints/03-mint-redeem-issues.md)
+- [Swap CPI Adapter Issues](./issue-blueprints/04-swap-cpi-adapter-issues.md)
+- [Pricing / NAV Issues](./issue-blueprints/05-pricing-nav-issues.md)
+- [Testing / Security Issues](./issue-blueprints/06-testing-security-issues.md)
+
+## Design Principle
 
 ```txt
-docs/
-  README.md
-
-  v1-open-design/
-    00-overview.md
-    01-dtf-model.md
-    02-system-architecture.md
-    03-mint-redeem-flow.md
-    04-swap-cpi-execution.md
-    05-pricing-nav-accounting.md
-    06-execution-policy-risk-controls.md
-    07-asset-universe.md
-    08-fee-model.md
-    09-rebalance-scope.md
-    10-titan-integration-boundary.md
-    11-open-questions.md
-
-  diagrams/
-    system-architecture.mmd
-    dtf-lifecycle.mmd
-    mint-flow.mmd
-    redeem-flow.mmd
-    swap-cpi-execution.mmd
-    pricing-nav-flow.mmd
-    state-er-diagram.mmd
-    asset-policy-state-machine.mmd
-    market-lifecycle-state-machine.mmd
-    titan-integration-boundary.mmd
-
-  specs/
-    accounts.md
-    instructions.md
-    errors.md
-    constants.md
-    math.md
+Axis First. Titan Compatible. Controlled Execution.
 ```
+
+Axis Core must be able to create, mint, redeem, and account for DTFs independently. External routers such as Titan may later route into Axis DTF markets, but they are not part of Axis Core.
 
 ## Current Status
 
-Finalized enough for implementation planning:
-
-- DTF model
-- mint / redeem accounting
-- controlled CPI execution direction
-- pricing source model
-- execution policy / risk controls
-- 500 asset universe philosophy
-
-Still open:
+The following areas are intentionally not finalized yet:
 
 - Fee model
 - Rebalance scope
-- exact pricing source implementation
-- first production-approved CPI venue after Orca spike
 - Titan integration details
-- execution-readiness classification for the 500-asset universe
+- Exact production CPI venue list after the Orca spike
+- Launch-readiness classification of the full 500-asset universe

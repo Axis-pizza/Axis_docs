@@ -1,6 +1,6 @@
 # Constants Spec
 
-## DTF Composition
+## Composition Constants
 
 ```txt
 MIN_ASSETS_PER_DTF = 2
@@ -11,7 +11,7 @@ HARD_MIN_ALLOCATION_USDC = 1
 MARKET_TVL_CAP = NONE
 ```
 
-## Initial NAV
+## NAV Constants
 
 ```txt
 INITIAL_NAV_USDC = 1
@@ -41,18 +41,29 @@ RESTRICTED_MAX_WEIGHT_BPS = 2000
 RESTRICTED_MAX_PRICE_IMPACT_BPS = 300
 ```
 
-## Asset Count
+## Asset Universe Constants
 
 ```txt
 MAX_UNIVERSE_ASSETS = 500
+MEME_BLUECHIP_TARGET = 50
+MEME_MIDCAP_TARGET = 100
+MEME_LONGTAIL_TARGET = 150
+STOCKTOKEN_TARGET = 75
+SOLANA_DEFI_INFRA_TARGET = 50
+AI_DEPIN_AGENT_TARGET = 40
+STABLE_LST_YIELD_TARGET = 25
+EXPERIMENTAL_TARGET = 10
 ```
 
-## Open Questions
+## Open Constants
+
+These need implementation testing:
 
 ```txt
-max_accounts_per_route
-max_compute_per_swap
-default_pricing_deviation_bps
-default_oracle_staleness_slots
-fee bps values
+MAX_ACCOUNTS_PER_ROUTE
+MAX_COMPUTE_PER_SWAP
+DEFAULT_PRICING_DEVIATION_BPS
+DEFAULT_ORACLE_STALENESS_SLOTS
+MINT_FEE_BPS
+REDEEM_FEE_BPS
 ```

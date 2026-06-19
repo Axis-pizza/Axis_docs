@@ -4,27 +4,36 @@
 
 ```txt
 InvalidAssetCount
+OneAssetDtfNotAllowed
+TooManyAssets
 DuplicateAsset
 InvalidWeightSum
 WeightBelowGlobalMinimum
 WeightAboveAssetMaximum
 MarketPaused
+MarketDeprecated
 MarketNotActive
-OneAssetDtfNotAllowed
 ```
 
-## Asset Policy Errors
+## Asset Errors
 
 ```txt
+AssetNotRegistered
 AssetNotInUniverse
 AssetCreationDisabled
 AssetMintDisabled
 AssetRedeemDisabled
 AssetRebalanceDisabled
+ManualReviewRequired
+```
+
+## Policy Errors
+
+```txt
 AllocationBelowMinimum
 TradeAboveAssetMaximum
 PriceImpactExceeded
-ManualReviewRequired
+PricingDeviationExceeded
 ```
 
 ## Route Errors
@@ -32,12 +41,14 @@ ManualReviewRequired
 ```txt
 ApprovedRouteRequired
 RouteNotApproved
+RouteDisabled
 VenueNotApproved
 PoolNotApproved
 InputMintMismatch
 OutputMintMismatch
 InvalidRouteDirection
 TooManyRouteAccounts
+UnsupportedVenue
 ```
 
 ## Pricing Errors
@@ -47,10 +58,12 @@ PricingSourceRequired
 PricingSourceDisabled
 StalePrice
 OracleConfidenceTooWide
-PricingDeviationExceeded
 InvalidPrice
 MissingTwap
 MissingOracle
+StableDepegDetected
+InvalidLstExchangeRate
+StockTokenPricingNotAllowed
 ```
 
 ## Execution Errors
@@ -61,6 +74,8 @@ ActualReceivedBelowMinOut
 InvalidBalanceDelta
 InsufficientReserveBalance
 InsufficientUsdcOut
+UnexpectedTokenAccountMint
+UnexpectedTokenAccountOwner
 ```
 
 ## Accounting Errors
