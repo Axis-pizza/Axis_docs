@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> Created
+    Created --> Active: initial seed complete
+    Active --> Paused: pause market
+    Paused --> Active: unpause market
+    Active --> Deprecated: deprecate market
+    Paused --> Deprecated: deprecate market
+    Deprecated --> [*]

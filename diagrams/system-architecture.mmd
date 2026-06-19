@@ -1,0 +1,24 @@
+flowchart TD
+    Creator[Creator] -->|Create DTF Market| Axis[Axis Core Program]
+    User[User] -->|Mint / Redeem with USDC| Axis
+
+    Axis --> Market[DTF Market]
+    Axis --> Registry[Asset Registry]
+    Axis --> Policy[Asset Execution Policy]
+    Axis --> Routes[Approved Route Registry]
+    Axis --> Pricing[Pricing Source Registry]
+    Axis --> Adapters[Approved Venue Adapters]
+
+    Adapters --> Orca[Orca Whirlpool]
+    Adapters --> RaydiumCPMM[Raydium CPMM]
+    Adapters --> PumpSwap[PumpSwap]
+    Adapters --> RaydiumCLMM[Raydium CLMM]
+    Adapters --> Meteora[Meteora DLMM]
+
+    Market --> DTFMint[DTF Mint]
+    Market --> Reserve[Reserve Token Accounts]
+    Reserve --> AssetA[Underlying Asset A]
+    Reserve --> AssetB[Underlying Asset B]
+    Reserve --> AssetN[Underlying Asset N]
+
+    Titan[Titan / External Router] -.->|Future route into Axis DTF venue| Axis

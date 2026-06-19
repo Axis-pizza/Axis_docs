@@ -1,0 +1,12 @@
+flowchart TD
+    User[User] -->|Submit DTF tokens| Axis[Axis Program]
+    Axis -->|Validate market| Market[DTF Market]
+    Axis -->|Compute redeem share| Share[Redeem Share]
+    Share -->|Compute pro-rata assets| Assets[Reserve Asset Amounts]
+    Axis -->|Load asset flags| Flags[Asset Execution Flags]
+    Axis -->|Load approved routes| Routes[Approved Routes]
+    Assets -->|CPI swap asset -> USDC| Venue[Approved Venue Adapters]
+    Venue --> USDC[USDC Token Account]
+    Axis -->|Read actual USDC delta| Delta[Actual USDC Received]
+    Delta -->|Check min_usdc_out| Check[Output Check]
+    Check -->|Transfer USDC| User

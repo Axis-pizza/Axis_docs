@@ -1,0 +1,100 @@
+erDiagram
+    PROTOCOL_CONFIG ||--o{ DTF_MARKET : governs
+    DTF_MARKET ||--|| DTF_MINT : issues
+    DTF_MARKET ||--o{ MARKET_ASSET_WEIGHT : defines
+    DTF_MARKET ||--o{ RESERVE_ASSET : holds
+    DTF_MARKET ||--|| FEE_CONFIG : uses
+
+    ASSET_REGISTRY ||--|| ASSET_EXECUTION_POLICY : has
+    ASSET_REGISTRY ||--o{ APPROVED_ROUTE : supports
+    ASSET_REGISTRY ||--o{ PRICING_SOURCE : priced_by
+
+    MARKET_ASSET_WEIGHT }o--|| ASSET_REGISTRY : references
+    RESERVE_ASSET }o--|| ASSET_REGISTRY : stores
+
+    CREATOR ||--o{ DTF_MARKET : creates
+
+    PROTOCOL_CONFIG {
+        pubkey authority
+        pubkey pause_authority
+        pubkey default_usdc_mint
+        pubkey protocol_treasury
+    }
+
+    CREATOR {
+        pubkey creator
+    }
+
+    DTF_MARKET {
+        pubkey market_id
+        pubkey creator
+        pubkey dtf_mint
+        pubkey reserve_authority
+        u16 asset_count
+        string status
+    }
+
+    DTF_MINT {
+        pubkey mint
+        u8 decimals
+        u64 total_supply
+    }
+
+    MARKET_ASSET_WEIGHT {
+        pubkey market_id
+        pubkey asset_mint
+        u16 weight_bps
+        pubkey reserve_token_account
+    }
+
+    RESERVE_ASSET {
+        pubkey market_id
+        pubkey asset_mint
+        pubkey reserve_token_account
+        u64 balance
+    }
+
+    ASSET_REGISTRY {
+        pubkey asset_mint
+        string symbol
+        string category
+        u8 decimals
+        bool is_universe_asset
+    }
+
+    ASSET_EXECUTION_POLICY {
+        pubkey asset_mint
+        bool creation_enabled
+        bool mint_enabled
+        bool redeem_enabled
+        bool rebalance_enabled
+        u64 hard_min_allocation_usdc
+        u64 max_trade_usdc
+        u16 max_weight_bps
+        u16 max_price_impact_bps
+    }
+
+    APPROVED_ROUTE {
+        pubkey route_id
+        pubkey asset_mint
+        string venue_type
+        pubkey venue_program_id
+        pubkey pool_id
+        bool enabled
+    }
+
+    PRICING_SOURCE {
+        pubkey pricing_source_id
+        pubkey asset_mint
+        string source_type
+        pubkey source_account
+        u16 max_deviation_bps
+        bool enabled
+    }
+
+    FEE_CONFIG {
+        u16 mint_fee_bps
+        u16 redeem_fee_bps
+        u16 creator_share_bps
+        u16 protocol_share_bps
+    }

@@ -1,0 +1,17 @@
+flowchart TD
+    User[User] -->|Deposit USDC| Axis[Axis Program]
+    Axis -->|Validate market| Market[DTF Market]
+    Axis -->|Load target weights| Weights[Market Asset Weights]
+    Axis -->|Load policy| Policy[Asset Execution Policies]
+    Axis -->|Compute allocation| Allocation[Asset Allocation USDC]
+    Allocation -->|Check >= 1 USDC| MinCheck[Minimum Allocation Check]
+    Allocation -->|Check <= max trade| MaxCheck[Max Trade Check]
+    Axis -->|Load approved routes| Routes[Approved Routes]
+    Axis -->|Execute CPI swaps| Venue[Approved Venue Adapters]
+    Venue -->|Assets received| Reserve[Reserve Token Accounts]
+    Axis -->|Read actual balance deltas| Delta[Actual Balance Delta]
+    Axis -->|Fetch approved prices| Pricing[Pricing Source Registry]
+    Delta --> NAV[NAV Accounting]
+    Pricing --> NAV
+    NAV -->|Compute minted DTF| Mint[Mint DTF Tokens]
+    Mint --> User

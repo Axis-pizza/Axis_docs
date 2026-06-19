@@ -1,0 +1,19 @@
+stateDiagram-v2
+    [*] --> FullyEnabled
+
+    FullyEnabled --> MintDisabled: mint_enabled=false
+    FullyEnabled --> CreationDisabled: creation_enabled=false
+    FullyEnabled --> RebalanceDisabled: rebalance_enabled=false
+    FullyEnabled --> FullyDisabled: creation/mint/redeem disabled
+
+    MintDisabled --> FullyEnabled: mint_enabled=true
+    CreationDisabled --> FullyEnabled: creation_enabled=true
+    RebalanceDisabled --> FullyEnabled: rebalance_enabled=true
+
+    FullyEnabled --> ExitOnly: creation=false, mint=false, redeem=true
+    MintDisabled --> ExitOnly: creation=false, redeem=true
+    CreationDisabled --> ExitOnly: mint=false, redeem=true
+
+    ExitOnly --> FullyEnabled: creation=true, mint=true
+    ExitOnly --> FullyDisabled: redeem=false
+    FullyDisabled --> ExitOnly: redeem=true
