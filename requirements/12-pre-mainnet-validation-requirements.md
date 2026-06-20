@@ -134,7 +134,7 @@ Fork-based tests are especially important for venue integrations.
 
 ### 5.4 Venue CPI Integration Tests
 
-Axis v1 must validate at least one production venue integration path before mainnet launch.
+Axis v1 must validate at least two production venue integration paths before mainnet launch, so that Axis is not dependent on a single execution venue. See `05-swap-cpi-execution-requirements.md` (EXEC-015).
 
 A venue is not considered Axis-ready only because an SDK can quote a route.
 
@@ -150,16 +150,20 @@ A venue is Axis-ready only when Axis Core can:
 * measure account usage
 * handle failure cases safely
 
-Potential venue candidates include:
+Required production venue paths:
 
-* Orca Whirlpool
-* Raydium CPMM
+* Orca Whirlpool (first production venue candidate)
+* Raydium CPMM (fallback production venue candidate)
+
+Later candidates (not required for the first mainnet launch gate):
+
 * PumpSwap
+* Raydium CLMM
 * Meteora DLMM
 
-The first production venue does not need to be all venues.
+The first two production venues do not need to be all venues.
 
-However, at least one production-grade mint/redeem execution path must be validated before mainnet launch.
+However, at least two production-grade mint/redeem execution paths (Orca Whirlpool and Raydium CPMM) must be validated before mainnet launch.
 
 ### 5.5 App Contract Integration Tests
 
@@ -281,7 +285,8 @@ Acceptance criteria:
 * CPI execution moves real tokens
 * actual USDC output delta is verified
 * min_usdc_out is enforced
-* creator fee or protocol fee behavior is applied where relevant
+* user_usdc_out equals actual_usdc_received (redeem_fee_bps = 0)
+* no creator or protocol fee accrues on redeem
 * redeemed DTF shares are burned or otherwise removed from circulating supply
 * failed redeem reverts the full transaction
 
@@ -296,27 +301,29 @@ Acceptance criteria:
 * creator fee bps is bounded
 * creator fee accrual is tested
 * creator fee claim or sweep path is defined
-* creator fee behavior is tested for mint and/or redeem where applicable
+* creator and protocol fees accrue only on mint; no fee accrues on redeem
+* fees are claim-based, not immediately transferred
 * creator fee accounting does not break reserve accounting
 * creator fee behavior is visible to app integration where relevant
 
 ### PMV-007: Venue integration must be validated before mainnet launch
 
-Axis v1 must validate at least one production venue integration path before mainnet launch.
+Axis v1 must validate at least two production venue integration paths before mainnet launch (Orca Whirlpool and Raydium CPMM fallback). See `05-swap-cpi-execution-requirements.md` (EXEC-015, EXEC-016, EXEC-017).
 
 Acceptance criteria:
 
-* at least one production venue candidate is selected
-* venue program ID is verified
-* route account requirements are documented
-* CPI instruction construction is tested
+* both production venue candidates (Orca Whirlpool and Raydium CPMM) are validated
+* each venue program ID is verified
+* route account requirements are documented per venue
+* CPI instruction construction is tested per venue
 * CPI execution moves real tokens
 * pre/post token balance deltas are verified
 * min_out is enforced
 * invalid account failure is tested
-* compute usage is measured
-* account usage is measured
+* compute usage is measured per venue
+* account usage is measured per venue
 * venue-specific risks are documented
+* controlled adapter tests are not sufficient for production venue readiness
 
 ### PMV-008: Failure cases must be tested
 
@@ -469,7 +476,8 @@ The following test scenarios must be covered before mainnet launch.
 * redeem DTF into USDC
 * redeem partial DTF position
 * redeem full DTF position
-* redeem with creator fee or protocol fee where applicable
+* redeem charges no explicit Axis fee (redeem_fee_bps = 0; user_usdc_out = actual_usdc_received)
+* redeem accrues no creator or protocol fee
 * redeem with min_usdc_out protection
 * redeem failure on disabled route
 * redeem failure on invalid reserve account
@@ -585,7 +593,8 @@ Minimum launch gate:
 * local tests pass
 * integration tests pass
 * fork-based tests pass where applicable
-* at least one production venue integration path is validated
+* at least two production venue integration paths are validated (Orca Whirlpool and Raydium CPMM fallback)
+* controlled adapter tests alone are not treated as production venue readiness
 * core create/mint/redeem lifecycle is validated
 * actual balance delta accounting is validated
 * reserve backing is observable
@@ -618,7 +627,7 @@ These should be handled in separate documents where needed.
 
 The following decisions remain open:
 
-* first production venue integration candidate
+* production venue candidates beyond the first two (Orca Whirlpool and Raydium CPMM are confirmed; see 05-swap-cpi-execution-requirements.md)
 * creator fee claim or sweep mechanism (fee bps and split are confirmed; see 13-fee-model-requirements.md)
 * initial mainnet asset universe
 * initial guarded launch limits
@@ -644,9 +653,9 @@ The following decisions remain open:
 * Implement creator fee tests
 * Implement failure case tests
 * Implement all-or-nothing execution tests
-* Validate first production venue CPI path
-* Measure venue CPI compute usage
-* Measure venue CPI account usage
+* Validate Orca Whirlpool and Raydium CPMM production venue CPI paths
+* Measure venue CPI compute usage (per venue)
+* Measure venue CPI account usage (per venue)
 * Define guarded mainnet launch checklist
 * Document deployment source and binary traceability
 * Define app contract integration smoke tests

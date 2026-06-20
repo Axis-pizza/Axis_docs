@@ -108,7 +108,10 @@ Acceptance criteria:
 
 ### POLICY-006: Runtime mint must enforce allocation minimum and maximum
 
+Allocation is computed from `net_usdc_for_composition` (gross user USDC minus mint fee), not from gross user input. `max_trade_usdc` therefore applies to the net mint allocation. See `03-mint-requirements.md` (MINT-004, MINT-006) and `05-swap-cpi-execution-requirements.md` (EXEC-009).
+
 ```txt
+asset_allocation_usdc_i = net_usdc_for_composition × weight_bps_i / 10000
 asset_allocation_usdc_i >= 1 USDC
 asset_allocation_usdc_i <= asset.max_trade_usdc
 ```
@@ -123,6 +126,25 @@ weight_bps_i <= asset.max_weight_bps
 
 ```txt
 price_impact_bps <= asset.max_price_impact_bps
+```
+
+Price impact, slippage, and execution spread are execution-quality controls, not Axis protocol fees. They must not be recorded as creator or protocol fees. See `05-swap-cpi-execution-requirements.md` (§6) and `13-fee-model-requirements.md` (§3).
+
+### POLICY-008b: min_out and min_usdc_out are required execution protections
+
+`min_out` (mint) and `min_usdc_out` (redeem) are mandatory execution protections enforced against actual balance deltas, independent of any fee.
+
+```txt
+mint:   actual_received_i >= min_out_i
+redeem: actual_usdc_received >= min_usdc_out
+```
+
+Acceptance criteria:
+
+```txt
+- missing min_out / min_usdc_out fails
+- actual output below the minimum reverts the full transaction
+- the minimum is checked against actual balance delta, not quote
 ```
 
 ### POLICY-009: Single mint max should emerge from asset policy
@@ -169,6 +191,19 @@ Acceptance criteria:
 - new creation blocked
 - new mint blocked
 - existing users can still redeem if route/pricing available
+```
+
+### POLICY-012: Execution venues must be explicitly approved
+
+Risk control depends on execution running only through explicitly approved venues and routes. The canonical venue/route rules live in `05-swap-cpi-execution-requirements.md`.
+
+Acceptance criteria:
+
+```txt
+- production venues must be explicitly approved (no execution through unapproved venue programs)
+- approved routes must map to a venue adapter executable by Axis Core
+- a controlled adapter is for local/integration tests only and is not sufficient for mainnet readiness
+- mainnet readiness requires at least two production venue paths (Orca Whirlpool and Raydium CPMM fallback)
 ```
 
 ## 4. Asset Policy State Machine

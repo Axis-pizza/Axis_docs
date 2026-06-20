@@ -6,15 +6,17 @@ This file maps requirement areas to implementation tasks.
 |---|---:|---|---|
 | Protocol config | AXIS-CORE, ADMIN | ProtocolConfig account | `01-protocol-config-and-registry-issues.md` |
 | Asset registry | ASSET, POLICY | AssetRegistry, AssetExecutionPolicy | `01-protocol-config-and-registry-issues.md` |
-| DTF market | DTF | DTFMarket, MarketAssetWeight | `02-dtf-market-issues.md` |
-| Mint | MINT | Mint instruction | `03-mint-redeem-issues.md` |
-| Redeem | REDEEM | Redeem instruction | `03-mint-redeem-issues.md` |
-| Swap CPI | EXEC | ApprovedRoute, VenueAdapter | `04-swap-cpi-adapter-issues.md` |
+| DTF market | DTF (incl. DTF-013..017 fee state) | DTFMarket, MarketAssetWeight, MarketFeeState, fee vault | `02-dtf-market-issues.md` |
+| Mint | MINT (incl. MINT-003..018 net fee accounting) | Mint instruction, mint fee deduction/accrual | `03-mint-redeem-issues.md` |
+| Redeem | REDEEM (incl. REDEEM-011..018 zero-fee) | Redeem instruction | `03-mint-redeem-issues.md` |
+| Swap CPI | EXEC (incl. EXEC-015..017 two-venue readiness) | ApprovedRoute, VenueAdapter, Orca Whirlpool + Raydium CPMM paths | `04-swap-cpi-adapter-issues.md` |
 | Pricing / NAV | PRICE | PricingSource, NAV calculator | `05-pricing-nav-issues.md` |
 | Fee model | FEE | ProtocolFeeConfig, MarketFeeState, fee vault, fee claim instructions | TODO: fee issue blueprint not yet created |
-| Pre-mainnet validation | PMV | Local / LiteSVM / fork tests, venue CPI tests, guarded launch controls | `06-testing-security-issues.md` |
-| Admin / safety | ADMIN | SetPolicy, Pause, Route updates | `06-testing-security-issues.md` |
+| Pre-mainnet validation | PMV | Local / LiteSVM / fork tests, two-venue CPI tests, guarded launch controls | `06-testing-security-issues.md` |
+| Admin / safety | ADMIN | SetPolicy, Pause, Route updates, protocol fee config (capped) | `06-testing-security-issues.md` |
 | Testing | TEST, NFR | Unit/integration/property tests | `06-testing-security-issues.md` |
+
+TODO: requirement areas referenced in `00-requirements-overview.md §5` (VENUE-*, APP-*, BD-*, MAINNET-*) do not yet have dedicated requirement docs or matrix rows. VENUE/MAINNET concerns currently live inside `05` (EXEC-*) and `12` (PMV-*). Add dedicated rows if/when standalone docs are created — do not invent IDs.
 
 ## Required Issue Metadata
 

@@ -76,6 +76,10 @@ NO_ROUTE
 UNKNOWN
 ```
 
+Route readiness and pricing readiness are separate checks; an asset may be route-ready but not pricing-ready, and vice versa.
+
+`JUPITER_ONLY` means a Jupiter/SDK quote exists but the asset has no Axis-approved CPI route yet. Generic quote availability must not be equated with venue/CPI readiness. See `05-swap-cpi-execution-requirements.md` (EXEC-012).
+
 ### ASSET-005: Pricing tier must be tracked for each asset
 
 Pricing tiers:
@@ -122,6 +126,19 @@ route_status
 pricing_tier
 launch_readiness
 manual_review_required
+```
+
+### ASSET-009: Asset execution flags must be independent
+
+Asset-level execution flags are distinct and independently controllable. The canonical flag definitions live in `07-execution-policy-risk-controls.md` (POLICY-010, POLICY-011) and `09-admin-safety-requirements.md`.
+
+Acceptance criteria:
+
+```txt
+- creation_enabled, mint_enabled, and redeem_enabled are distinct flags
+- disabling mint does not automatically disable redeem
+- exit-only mode (creation=false, mint=false, redeem=true) is supported where redeem is still safe
+- route readiness, pricing readiness, and execution flags are evaluated independently
 ```
 
 ## 4. Example DTFs Used to Backsolve Asset Universe

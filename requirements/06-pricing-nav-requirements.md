@@ -175,10 +175,26 @@ actual_added_value_usdc = Σ(actual_received_asset_i × approved_price_i)
 minted_dtf = actual_added_value_usdc / pre_trade_nav
 ```
 
+Acceptance criteria:
+
+```txt
+- mint uses pre-trade NAV (computed before reserves are mutated)
+- minted DTF is based on actual_added_value_usdc, not on gross input or quote
+- mint fee is excluded from actual_added_value_usdc
+- quotes are not used as accounting truth
+```
+
 ### PRICE-013: Redeem output must use actual USDC received
 
 ```txt
 actual_usdc_received = post_usdc_balance - pre_usdc_balance
+```
+
+Acceptance criteria:
+
+```txt
+- user_usdc_out = actual_usdc_received (redeem_fee_bps = 0)
+- actual USDC balance delta is accounting truth, not the quote
 ```
 
 ## 4. Pricing Tiers
