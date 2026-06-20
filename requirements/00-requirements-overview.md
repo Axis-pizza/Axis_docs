@@ -79,29 +79,14 @@ PRICE-*       pricing and NAV requirements
 POLICY-*      execution policy and risk control requirements
 ASSET-*       asset universe requirements
 ADMIN-*       admin, safety, and emergency requirements
+FEE-*         creator fee and protocol fee requirements
+VENUE-*       production venue integration requirements
+APP-*         app contract integration requirements
+BD-*          partner demo and business development requirements
+PMV-*         pre-mainnet validation requirements
+MAINNET-*     guarded mainnet launch requirements
 NFR-*         non-functional requirements
 TEST-*        testing requirements
-DEVNET-*      Devnet Alpha scope and end-to-end launch requirements
-```
-
-## 6. System Workflow
-
-```mermaid
-flowchart TD
-    Creator[Creator] -->|Create DTF Market| Axis[Axis Core Program]
-    User[User] -->|Mint with USDC| Axis
-    Axis -->|Validate DTF composition| Market[DTF Market]
-    Axis -->|Validate asset policies| Policy[Asset Execution Policy]
-    Axis -->|Validate route plan| Routes[Approved Route Registry]
-    Axis -->|Execute CPI swaps| Adapter[Approved Venue Adapter]
-    Adapter -->|Receive underlying assets| Reserve[DTF Reserve Accounts]
-    Axis -->|Read actual balance deltas| Delta[Actual Balance Delta]
-    Axis -->|Fetch approved prices| Pricing[Pricing Source Registry]
-    Axis -->|Compute NAV and minted DTF| Accounting[NAV Accounting]
-    Accounting -->|Mint DTF token| User
-    User -->|Redeem DTF| Axis
-    Axis -->|Unwind reserve assets back to USDC| Adapter
-    Axis -->|Transfer USDC out| User
 ```
 
 ## 7. Implementation Phasing
@@ -110,17 +95,23 @@ flowchart TD
 
 ```txt
 - finalize requirements
-- define first Devnet Alpha scope
+- define Axis v1 contract scope
+- define DTF market account model
+- define mint and redeem instruction surfaces
+- define reserve accounting model
+- define creator fee requirements
+- define venue integration requirements
+- define pre-mainnet validation plan
 - turn requirements into GitHub issues
-- define MVP account and instruction surfaces
-- define test plan
 ```
 
-### Phase 1: Functional Devnet Alpha
+### Phase 1: Core Contract Validation
 
-The first Devnet release must not be a state-only skeleton.
+The first implementation phase must prove that Axis Core can create and operate a minimal reserve-backed DTF lifecycle.
 
-The goal of Phase 1 is to prove that Axis Core can create and operate a minimal DTF market end-to-end.
+This phase does not require public Devnet deployment.
+
+The goal is to validate the core protocol model through deterministic local tests and integration tests.
 
 Required capabilities:
 
@@ -131,63 +122,193 @@ Required capabilities:
 - set pricing sources
 - register approved CPI routes
 - create a 2-asset DTF market
+- create DTF mint and reserve token accounts
 - mint DTF tokens with USDC
-- execute a real CPI execution path with controlled liquidity
-- execute approved CPI swaps into reserve assets
+- execute a real CPI execution path in a controlled test environment
+- move real SPL tokens
 - measure actual reserve balance deltas
 - calculate actual added value
 - mint DTF tokens based on pre-trade NAV
+- accrue creator fees where applicable
 - redeem DTF tokens
-- execute approved CPI swaps from reserve assets back to USDC
+- execute unwind path from reserve assets back to USDC
 - enforce min_out
 - transfer actual USDC output to user
-- verify actual token balance deltas after CPI execution
+- verify actual token balance deltas after execution
+- burn or remove redeemed DTF tokens from circulating supply
 ```
 
 Phase 1 constraints:
 
 ```txt
 - 2-asset DTF end-to-end is required
-- 3-5 asset account structure may be supported, but 3-5 asset execution is not required for first Devnet Alpha
-- one controlled CPI adapter is required for Functional Devnet Alpha
-- production venue adapters are validated separately in Venue Integration Devnet
-- direct USDC <-> asset routes only
-- no split routing
-- no routed SOL intermediate path
-- ManualFixedPrice pricing source is allowed for Devnet Alpha
-- fees are disabled or set to zero
-- rebalance is out of scope
-- Titan integration is out of scope
+- 3-5 asset account structure should be supported
+- 3-5 asset execution feasibility may be validated after the 2-asset lifecycle is stable
+- controlled CPI adapter may be used for local validation
+- mock accounting is not acceptable
+- real token transfer is required
+- actual balance delta verification is required
+- direct USDC <-> asset routes are preferred
+- no split routing for the first implementation milestone
+- no routed SOL intermediate path for the first implementation milestone
+- ManualFixedPrice pricing source may be used for local validation
+- creator fee support must be implemented and tested before mainnet launch
+- rebalance is out of scope for the first implementation milestone
+- Titan integration is out of scope for Axis Core
 ```
 
+### Phase 2: Local and Fork-Based Integration Validation
 
-### Phase 2: Multi-Asset and Execution Hardening
+The second phase validates Axis v1 against more realistic execution and account conditions.
+
+Public Devnet is not required.
+
+Validation should use local validator tests, LiteSVM tests, and mainnet-fork or cloned-account tests where applicable.
+
+Required capabilities:
 
 ```txt
-- test 3-5 asset DTF execution feasibility
-- measure compute and account limits
-- improve route validation
-- improve pricing deviation checks
-- improve failure handling and error codes
-- add more integration tests
+- validate mint and redeem end-to-end with integration tests
+- test actual balance delta accounting
+- test creator fee accrual and accounting
+- test mixed decimal assets
+- test min_out failure behavior
+- test disabled asset behavior
+- test disabled route behavior
+- test paused or emergency states
+- test all-or-nothing execution
+- measure compute usage
+- measure account usage
+- document known limitations
 ```
 
-### Phase 3: Additional Venue Adapters
+### Phase 3: Production Venue Integration
+
+At least one production venue integration path must be validated before mainnet launch.
+
+A venue is not Axis-ready only because an SDK can quote a route.
+
+A venue is Axis-ready only when Axis Core can validate the route, execute the CPI, move real tokens, verify actual balance deltas, enforce min_out, and measure compute/account usage.
+
+Candidate venue integrations:
 
 ```txt
-- Orca Whirlpool production adapter hardening
-- Raydium CPMM adapter
-- PumpSwap adapter
-- venue-specific compute/account benchmarking
+- Orca Whirlpool
+- Raydium CPMM
+- PumpSwap
+- Meteora DLMM
 ```
 
-### Phase 4: Asset Universe and Public Devnet Readiness
+Required capabilities:
 
 ```txt
-- route readiness classification
-- pricing readiness classification
-- initial launch-ready asset list
-- frontend/client integration
-- public/internal Devnet testing
+- verify production venue program ID
+- construct venue CPI instruction
+- validate required accounts
+- execute CPI in a local or fork-based environment
+- verify pre/post token balances
+- enforce min_out
+- reject invalid input mint
+- reject invalid output mint
+- reject invalid pool or venue accounts
+- measure compute usage
+- measure account usage
+- document venue-specific risks
 ```
 
+### Phase 4: App Contract Integration
+
+The app experience should not be treated as a full UX redesign in this requirements phase.
+
+The existing index creation and product experience should be preserved where possible.
+
+The app must be updated to connect to the new Axis v1 contract model.
+
+Required capabilities:
+
+```txt
+- load DTF market state
+- load target weights
+- load reserve token accounts
+- load actual reserve balances
+- load NAV or approved reserve value
+- construct mint transactions
+- construct redeem transactions
+- display reserve-backed DTF state
+- display creator fee information where relevant
+- display transaction results
+```
+
+Detailed UI and UX requirements should be defined in a separate app requirements document.
+
+### Phase 5: Partner Demo Readiness
+
+Partner demos should be backed by contract-level evidence.
+
+The goal is to use Axis v1 as a real BD asset when speaking with ecosystem teams.
+
+Partner demo readiness should support:
+
+```txt
+- sharing the contract GitHub repository
+- showing how Axis-issued DTF markets work
+- showing reserve-backed mint and redeem behavior
+- showing transaction or test evidence
+- explaining venue integration status
+- explaining how external teams can route into Axis-issued DTF exposure
+```
+
+Partner positioning:
+
+```txt
+Axis handles DTF issuance.
+Axis owns reserve-backed DTF markets.
+External partners may become distribution or routing surfaces.
+```
+
+Example partner narratives:
+
+```txt
+- Titan can route or surface swaps into Axis-issued DTF exposure from Titan UI
+- Orca can review Axis CPI usage and provide technical design feedback
+- other Solana projects can collaborate around ecosystem-specific DTF markets
+```
+
+### Phase 6: Guarded Mainnet Candidate
+
+Axis v1 should move toward mainnet only after required pre-mainnet validation evidence is available.
+
+Public Devnet runtime is not required as a launch gate.
+
+Mainnet candidate requirements:
+
+```txt
+- core create/mint/redeem lifecycle is validated
+- actual balance delta accounting is validated
+- reserve backing is observable
+- creator fee behavior is implemented and tested
+- at least one production venue integration path is validated
+- app contract integration is tested
+- local and fork-based tests pass
+- failure cases are tested
+- deployment source and binary traceability are documented
+- guarded launch controls are configured
+- known blockers are resolved or explicitly accepted
+```
+
+Guarded launch controls:
+
+```txt
+- limited initial asset universe
+- approved route registry
+- per-asset execution policy
+- per-transaction limits
+- creator fee limits
+- protocol fee limits
+- emergency pause controls
+- route disable controls
+- asset disable controls
+- monitoring
+- launch checklist
+- mitigation procedures
+```
