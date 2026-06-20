@@ -81,6 +81,7 @@ ASSET-*       asset universe requirements
 ADMIN-*       admin, safety, and emergency requirements
 NFR-*         non-functional requirements
 TEST-*        testing requirements
+DEVNET-*      Devnet Alpha scope and end-to-end launch requirements
 ```
 
 ## 6. System Workflow
@@ -109,54 +110,84 @@ flowchart TD
 
 ```txt
 - finalize requirements
+- define first Devnet Alpha scope
 - turn requirements into GitHub issues
 - define MVP account and instruction surfaces
 - define test plan
 ```
 
-### Phase 1: Core State and Validation
+### Phase 1: Functional Devnet Alpha
+
+The first Devnet release must not be a state-only skeleton.
+
+The goal of Phase 1 is to prove that Axis Core can create and operate a minimal DTF market end-to-end.
+
+Required capabilities:
 
 ```txt
-- ProtocolConfig
-- AssetRegistry
-- AssetExecutionPolicy
-- PricingSourceRegistry
-- ApprovedRouteRegistry
-- DTFMarket creation
-- composition validation
+- initialize protocol config
+- register assets
+- set asset execution policies
+- set pricing sources
+- register approved CPI routes
+- create a 2-asset DTF market
+- mint DTF tokens with USDC
+- execute a real CPI execution path with controlled liquidity
+- execute approved CPI swaps into reserve assets
+- measure actual reserve balance deltas
+- calculate actual added value
+- mint DTF tokens based on pre-trade NAV
+- redeem DTF tokens
+- execute approved CPI swaps from reserve assets back to USDC
+- enforce min_out
+- transfer actual USDC output to user
+- verify actual token balance deltas after CPI execution
 ```
 
-### Phase 2: Pricing and NAV
+Phase 1 constraints:
 
 ```txt
-- reserve accounting
-- pricing source validation
-- NAV calculation
-- actual balance delta measurement
+- 2-asset DTF end-to-end is required
+- 3-5 asset account structure may be supported, but 3-5 asset execution is not required for first Devnet Alpha
+- one controlled CPI adapter is required for Functional Devnet Alpha
+- production venue adapters are validated separately in Venue Integration Devnet
+- direct USDC <-> asset routes only
+- no split routing
+- no routed SOL intermediate path
+- ManualFixedPrice pricing source is allowed for Devnet Alpha
+- fees are disabled or set to zero
+- rebalance is out of scope
+- Titan integration is out of scope
 ```
 
-### Phase 3: CPI Spike
+
+### Phase 2: Multi-Asset and Execution Hardening
 
 ```txt
-- Orca Whirlpool CPI spike
+- test 3-5 asset DTF execution feasibility
 - measure compute and account limits
-- validate Pinocchio / no_std integration feasibility
+- improve route validation
+- improve pricing deviation checks
+- improve failure handling and error codes
+- add more integration tests
 ```
 
-### Phase 4: Mint / Redeem MVP
+### Phase 3: Additional Venue Adapters
 
 ```txt
-- mint with controlled CPI execution
-- redeem with controlled CPI execution
-- min_out and balance delta checks
-- end-to-end tests
-```
-
-### Phase 5: Additional Venues and Asset Universe
-
-```txt
+- Orca Whirlpool production adapter hardening
 - Raydium CPMM adapter
 - PumpSwap adapter
-- route readiness classification
-- 500 asset universe launch readiness
+- venue-specific compute/account benchmarking
 ```
+
+### Phase 4: Asset Universe and Public Devnet Readiness
+
+```txt
+- route readiness classification
+- pricing readiness classification
+- initial launch-ready asset list
+- frontend/client integration
+- public/internal Devnet testing
+```
+
