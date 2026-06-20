@@ -17,7 +17,7 @@ Dependencies
 ## Milestone 1: Core State & Registries
 
 ```txt
-1. Implement ProtocolConfig
+1. Implement ProtocolConfig (including protocol fee config: mint/redeem fee bps, creator/protocol shares, fee caps)
 2. Implement AssetRegistry
 3. Implement AssetExecutionPolicy
 4. Implement PricingSourceRegistry
@@ -32,6 +32,7 @@ Dependencies
 8. Implement CreateMarket instruction
 9. Implement composition validation
 10. Implement market status model
+10b. Implement market fee state (creator, creator_fee_destination, fee snapshot, accrued fees, fee vault)
 ```
 
 ## Milestone 3: Pricing / NAV
@@ -56,11 +57,13 @@ Dependencies
 
 ```txt
 19. Implement Mint instruction
-20. Implement mint allocation checks
-21. Implement mint accounting
-22. Implement Redeem instruction
+20. Implement mint fee deduction and allocation checks (from net_usdc_for_composition)
+21. Implement mint accounting (actual added value, excludes fee)
+21b. Implement creator/protocol fee accrual on mint
+22. Implement Redeem instruction (no explicit redeem fee in v1)
 23. Implement redeem share/pro-rata accounting
 24. Implement min_out / min_usdc_out checks
+24b. Implement fee claim instructions (creator + protocol)
 ```
 
 ## Milestone 6: Safety and Tests
@@ -68,7 +71,9 @@ Dependencies
 ```txt
 25. Implement pause / unpause
 26. Implement emergency asset flags
-27. Implement test suite
+27. Implement test suite (including fee tests)
 28. Implement integration tests
 29. Implement route/policy/pricing negative tests
+30. Implement pre-mainnet validation matrix (local / LiteSVM / fork / venue CPI), no mandatory public Devnet
+31. Implement guarded mainnet launch controls
 ```

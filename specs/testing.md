@@ -20,7 +20,7 @@ TEST-DTF-010: reject creation_disabled asset
 ```txt
 TEST-MINT-001: mint with USDC succeeds
 TEST-MINT-002: non-USDC input fails
-TEST-MINT-003: allocation calculation correct
+TEST-MINT-003: allocation calculation correct (from net_usdc_for_composition, not gross)
 TEST-MINT-004: allocation below 1 USDC fails
 TEST-MINT-005: allocation above max_trade fails
 TEST-MINT-006: mint_disabled asset fails
@@ -74,4 +74,26 @@ TEST-ADMIN-002: disable mint blocks Mint
 TEST-ADMIN-003: redeem remains possible in exit-only mode
 TEST-ADMIN-004: pause blocks mint
 TEST-ADMIN-005: unauthorized policy update fails
+```
+
+## 7. Fee Tests
+
+```txt
+TEST-FEE-001: mint fee = gross_user_usdc_in × 100 / 10000
+TEST-FEE-002: creator/protocol split = 4000/6000 of mint fee
+TEST-FEE-003: net_usdc_for_composition = gross - mint fee, used for composition
+TEST-FEE-004: minted_dtf excludes mint fee (based on actual added value)
+TEST-FEE-005: redeem charges no explicit fee (user_usdc_out = actual_usdc_received)
+TEST-FEE-006: redeem does not accrue creator or protocol fees
+TEST-FEE-007: mint_fee_bps > max_mint_fee_bps rejected
+TEST-FEE-008: creator_share_bps + protocol_share_bps != 10000 rejected
+TEST-FEE-009: creator-customized fee bps rejected
+TEST-FEE-010: market fee config immutable after creation
+TEST-FEE-011: creator fee claim transfers and decrements accrued balance
+TEST-FEE-012: protocol fee claim transfers and decrements accrued balance
+TEST-FEE-013: double fee claim rejected
+TEST-FEE-014: unauthorized fee claim rejected
+TEST-FEE-015: failed mint accrues no fees
+TEST-FEE-016: accrued fees excluded from NAV and reserve backing
+TEST-FEE-017: fee custody account is separate from reserve accounts
 ```

@@ -22,6 +22,8 @@ Read these in order:
 10. [Admin / Safety Requirements](./requirements/09-admin-safety-requirements.md)
 11. [Non-Functional Requirements](./requirements/10-non-functional-requirements.md)
 12. [Traceability Matrix](./requirements/11-traceability-matrix.md)
+13. [Pre-Mainnet Validation Requirements](./requirements/12-pre-mainnet-validation-requirements.md)
+14. [Fee Model Requirements](./requirements/13-fee-model-requirements.md)
 
 ## Program Specs
 
@@ -54,10 +56,12 @@ Axis Core must be able to create, mint, redeem, and account for DTFs independent
 
 ## Current Status
 
+The Axis v1 fee model is confirmed and required from launch (see [Fee Model Requirements](./requirements/13-fee-model-requirements.md)). Pre-mainnet validation does not require public Devnet (see [Pre-Mainnet Validation Requirements](./requirements/12-pre-mainnet-validation-requirements.md)).
+
 The following areas are intentionally not finalized yet:
 
-- Fee model
 - Rebalance scope
 - Titan integration details
 - Exact production CPI venue list after the Orca spike
 - Launch-readiness classification of the full 500-asset universe
+- Fee custody account layout and exact fee-claim instruction names (see fee model Open Questions)

@@ -13,6 +13,14 @@ ProtocolConfig {
   pricing_registry_authority: Pubkey
   default_usdc_mint: Pubkey
   protocol_treasury: Pubkey
+
+  mint_fee_bps: u16          // = 100
+  redeem_fee_bps: u16        // = 0
+  creator_share_bps: u16     // = 4000
+  protocol_share_bps: u16    // = 6000
+  max_mint_fee_bps: u16      // = 300
+  max_redeem_fee_bps: u16    // = 0
+
   bump: u8
 }
 ```
@@ -23,6 +31,9 @@ Requirements:
 - must be initialized once per deployment
 - must define default USDC mint
 - must define all authorities
+- must define protocol fee config (source of truth for market fee snapshots)
+- mint_fee_bps <= max_mint_fee_bps and redeem_fee_bps <= max_redeem_fee_bps
+- creator_share_bps + protocol_share_bps == 10000
 ```
 
 ## 2. DTFMarket
@@ -202,18 +213,46 @@ LstExchangeRate
 StockTokenOracle
 ```
 
-## 8. FeeConfig
+## 8. Fee State
 
-Fee model is not finalized, but account surface should reserve fields.
+Fee model is confirmed and required from Axis v1 launch. See `requirements/13-fee-model-requirements.md`.
+
+Protocol-level fee config (source of truth for fee values):
 
 ```txt
-FeeConfig {
+ProtocolFeeConfig {
+  mint_fee_bps: u16          // = 100
+  redeem_fee_bps: u16        // = 0
+  creator_share_bps: u16     // = 4000
+  protocol_share_bps: u16    // = 6000
+  max_mint_fee_bps: u16      // = 300
+  max_redeem_fee_bps: u16    // = 0
+  protocol_treasury: Pubkey
+}
+```
+
+Market-level fee state (derived from protocol config / preset at market creation, immutable afterward):
+
+```txt
+MarketFeeState {
+  creator: Pubkey
+  creator_fee_destination: Pubkey
   mint_fee_bps: u16
   redeem_fee_bps: u16
   creator_share_bps: u16
   protocol_share_bps: u16
-  fee_destination: Pubkey
+  accrued_creator_fee_usdc: u64
+  accrued_protocol_fee_usdc: u64
 }
+```
+
+Constraints:
+
+```txt
+- market fee bps are not creator-customizable
+- market fee config is immutable after market creation
+- accrued fees are not reserves and are excluded from NAV
+- fee custody must be separate from reserve custody
 ```
 
 ## 9. Reserve Token Accounts

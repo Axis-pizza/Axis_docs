@@ -72,3 +72,43 @@ Acceptance criteria:
 - compute and account limits documented
 - multi-swap feasibility tested
 ```
+
+## Issue: Implement fee tests
+
+Requirement IDs:
+
+```txt
+TEST-FEE-001 through TEST-FEE-017
+FEE-018
+```
+
+Acceptance criteria:
+
+```txt
+- mint fee calculation and creator/protocol split covered
+- net composition allocation covered
+- redeem zero-fee behavior covered
+- fee config validation and caps covered
+- immutable market fee config covered
+- claim and double-claim/authorization cases covered
+- accrued fees excluded from NAV and reserve backing covered
+- fee custody / reserve separation covered
+```
+
+## Issue: Implement pre-mainnet validation suite
+
+Requirement IDs:
+
+```txt
+PMV-001 through PMV-013
+```
+
+Acceptance criteria:
+
+```txt
+- local / LiteSVM / local validator / fork-based tests cover the core lifecycle
+- production venue CPI integration path validated
+- app contract integration smoke tests pass
+- guarded mainnet launch controls configured
+- public Devnet is not a required readiness gate
+```

@@ -65,3 +65,32 @@ Acceptance criteria:
 - reserve authority is Axis-controlled
 - invalid reserve account fails
 ```
+
+## Issue: Implement market fee state
+
+Requirement IDs:
+
+```txt
+DTF-013
+DTF-014
+DTF-015
+DTF-016
+DTF-017
+FEE-002
+FEE-003
+FEE-004
+FEE-005
+FEE-016
+```
+
+Acceptance criteria:
+
+```txt
+- stores creator and creator_fee_destination
+- snapshots fee config (mint/redeem fee bps, creator/protocol shares) from protocol config at creation
+- fee bps are not creator-customizable
+- market fee config immutable after creation
+- tracks accrued_creator_fee_usdc and accrued_protocol_fee_usdc
+- fee custody account is separate from reserve token accounts
+- fee vault balance excluded from reserve value and NAV
+```

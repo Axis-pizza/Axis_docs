@@ -41,6 +41,8 @@ Acceptance criteria:
 ```txt
 - target weights are not used as reserve balances
 - actual reserve token account balances are used
+- accrued creator/protocol fees are not included in reserve value
+- fee vault / fee custody balances are excluded from NAV
 ```
 
 ### PRICE-002: Initial NAV must be 1 USDC

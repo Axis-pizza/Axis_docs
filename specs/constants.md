@@ -17,6 +17,21 @@ MARKET_TVL_CAP = NONE
 INITIAL_NAV_USDC = 1
 ```
 
+## Fee Constants
+
+Axis v1 fee model is confirmed and required from launch. See `requirements/13-fee-model-requirements.md`.
+
+```txt
+MINT_FEE_BPS = 100
+REDEEM_FEE_BPS = 0
+
+CREATOR_SHARE_BPS = 4000
+PROTOCOL_SHARE_BPS = 6000
+
+MAX_MINT_FEE_BPS = 300
+MAX_REDEEM_FEE_BPS = 0
+```
+
 ## Default Policy Presets
 
 ```txt
@@ -64,6 +79,4 @@ MAX_ACCOUNTS_PER_ROUTE
 MAX_COMPUTE_PER_SWAP
 DEFAULT_PRICING_DEVIATION_BPS
 DEFAULT_ORACLE_STALENESS_SLOTS
-MINT_FEE_BPS
-REDEEM_FEE_BPS
 ```

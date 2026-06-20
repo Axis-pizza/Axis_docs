@@ -619,8 +619,7 @@ These should be handled in separate documents where needed.
 The following decisions remain open:
 
 * first production venue integration candidate
-* exact creator fee model
-* creator fee claim or sweep mechanism
+* creator fee claim or sweep mechanism (fee bps and split are confirmed; see 13-fee-model-requirements.md)
 * initial mainnet asset universe
 * initial guarded launch limits
 * initial approved route set

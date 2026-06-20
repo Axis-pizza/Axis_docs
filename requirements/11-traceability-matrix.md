@@ -11,6 +11,8 @@ This file maps requirement areas to implementation tasks.
 | Redeem | REDEEM | Redeem instruction | `03-mint-redeem-issues.md` |
 | Swap CPI | EXEC | ApprovedRoute, VenueAdapter | `04-swap-cpi-adapter-issues.md` |
 | Pricing / NAV | PRICE | PricingSource, NAV calculator | `05-pricing-nav-issues.md` |
+| Fee model | FEE | ProtocolFeeConfig, MarketFeeState, fee vault, fee claim instructions | TODO: fee issue blueprint not yet created |
+| Pre-mainnet validation | PMV | Local / LiteSVM / fork tests, venue CPI tests, guarded launch controls | `06-testing-security-issues.md` |
 | Admin / safety | ADMIN | SetPolicy, Pause, Route updates | `06-testing-security-issues.md` |
 | Testing | TEST, NFR | Unit/integration/property tests | `06-testing-security-issues.md` |
 

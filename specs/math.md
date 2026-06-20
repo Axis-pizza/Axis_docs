@@ -9,10 +9,26 @@ HARD_MIN_ALLOCATION_USDC = 1
 INITIAL_NAV_USDC = 1
 ```
 
-## 2. Asset Allocation
+## 1b. Mint Fee Deduction
+
+Mint fee is charged on gross user USDC input before reserve composition.
 
 ```txt
-asset_allocation_usdc_i = mint_amount_usdc × weight_bps_i / 10000
+mint_fee_usdc = gross_user_usdc_in × MINT_FEE_BPS / 10000
+net_usdc_for_composition = gross_user_usdc_in - mint_fee_usdc
+
+creator_fee_usdc = mint_fee_usdc × CREATOR_SHARE_BPS / 10000
+protocol_fee_usdc = mint_fee_usdc - creator_fee_usdc
+```
+
+Only `net_usdc_for_composition` is used for reserve composition. Mint fee is excluded from reserve value and NAV.
+
+## 2. Asset Allocation
+
+Allocation is computed from net USDC after mint fee deduction, not gross user input.
+
+```txt
+asset_allocation_usdc_i = net_usdc_for_composition × weight_bps_i / 10000
 ```
 
 Requirement:
@@ -23,10 +39,10 @@ asset_allocation_usdc_i >= 1 USDC
 
 ## 3. Minimum Mint Size
 
-For a DTF, the minimum mint size implied by the 1 USDC allocation rule is:
+The 1 USDC allocation rule applies to `net_usdc_for_composition`, so the minimum is expressed against net composition value:
 
 ```txt
-minimum_mint_usdc = max_i(1 USDC / weight_fraction_i)
+minimum_net_composition_usdc = max_i(1 USDC / weight_fraction_i)
 ```
 
 Where:
@@ -35,14 +51,16 @@ Where:
 weight_fraction_i = weight_bps_i / 10000
 ```
 
-Examples:
+Examples (net composition value required):
 
 ```txt
-1% asset  -> minimum mint = 100 USDC
-2% asset  -> minimum mint = 50 USDC
-5% asset  -> minimum mint = 20 USDC
-10% asset -> minimum mint = 10 USDC
+1% asset  -> minimum net composition = 100 USDC
+2% asset  -> minimum net composition = 50 USDC
+5% asset  -> minimum net composition = 20 USDC
+10% asset -> minimum net composition = 10 USDC
 ```
+
+TODO: gross minimum mint input is slightly higher than the net composition value because of the mint fee (`net = gross × (1 - MINT_FEE_BPS/10000)`). Exact gross minimum figures are not pinned here to avoid restating fee-derived numbers; derive from the confirmed `MINT_FEE_BPS` if a gross threshold is needed.
 
 ## 4. Single Mint Max Size
 
@@ -114,6 +132,15 @@ actual_usdc_received = post_usdc_balance - pre_usdc_balance
 ```txt
 user_usdc_out = actual_usdc_received - redeem_fee
 ```
+
+For v1, `REDEEM_FEE_BPS = 0`, so there is no explicit Axis exit fee:
+
+```txt
+redeem_fee = 0
+user_usdc_out = actual_usdc_received
+```
+
+Execution spread / slippage / price impact are separate from Axis fees and are bounded by `min_usdc_out`.
 
 ## 12. Pricing Deviation
 

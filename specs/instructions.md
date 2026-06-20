@@ -14,6 +14,12 @@ route_registry_authority
 pricing_registry_authority
 default_usdc_mint
 protocol_treasury
+mint_fee_bps              // = 100
+redeem_fee_bps            // = 0
+creator_share_bps         // = 4000
+protocol_share_bps        // = 6000
+max_mint_fee_bps          // = 300
+max_redeem_fee_bps        // = 0
 ```
 
 Acceptance criteria:
@@ -22,6 +28,10 @@ Acceptance criteria:
 - config initialized once
 - USDC mint stored
 - authorities stored
+- protocol fee config stored (mint/redeem fee bps, creator/protocol shares, fee caps)
+- mint_fee_bps <= max_mint_fee_bps
+- redeem_fee_bps <= max_redeem_fee_bps
+- creator_share_bps + protocol_share_bps == 10000
 ```
 
 ## 2. RegisterAsset
@@ -132,9 +142,11 @@ Inputs:
 creator
 asset_mints[]
 weights_bps[]
-fee_config
+creator_fee_destination
 optional_initial_seed_usdc
 ```
+
+Note: market fee bps are NOT a creator input. Market fee config is derived from protocol-level fee config (or a protocol-approved preset) at creation time and is immutable afterward. The creator only supplies `creator_fee_destination`.
 
 Checks:
 
@@ -158,6 +170,8 @@ DTFMarket
 DTF mint
 reserve token accounts
 market asset weights
+market fee state (snapshot of protocol fee config + creator, creator_fee_destination)
+USDC fee vault (custody separate from reserve token accounts)
 ```
 
 ## 7. Mint
@@ -192,12 +206,24 @@ actual_received >= min_out
 Behavior:
 
 ```txt
-transfer/take USDC
-execute CPI swaps
+take gross_user_usdc_in
+deduct mint_fee_usdc (retain in fee custody, not reserve custody)
+split mint fee into creator_fee_usdc and protocol_fee_usdc
+compute net_usdc_for_composition = gross_user_usdc_in - mint_fee_usdc
+execute CPI swaps using net_usdc_for_composition only
 measure actual reserve deltas
-compute actual_added_value
-compute minted_dtf
+compute actual_added_value (excludes mint fee)
+compute minted_dtf = actual_added_value / pre_trade_nav
 mint DTF to user
+accrue creator_fee_usdc and protocol_fee_usdc (claim-based, not transferred now)
+```
+
+Notes:
+
+```txt
+- minted_dtf is based on actual added reserve value, never on gross input or quote
+- failed mint accrues no fees and mints no DTF
+- accrued fees are excluded from NAV and reserve backing
 ```
 
 ## 8. Redeem
@@ -261,3 +287,29 @@ authorized pause_authority
 Status: not finalized.
 
 Potentially v1.1.
+
+## 12. Fee Claims
+
+Axis v1 fees are claim-based (accrued during mint, transferred only on explicit claim). Two explicit claim paths are required. See `requirements/13-fee-model-requirements.md` (FEE-014, FEE-015).
+
+ClaimCreatorFee:
+
+```txt
+- only the authorized creator_fee_destination / defined authority can claim
+- transfers accrued_creator_fee_usdc to creator_fee_destination
+- subtracts claimed amount from accrued_creator_fee_usdc
+- double claim impossible
+- does not change reserve balances
+```
+
+ClaimProtocolFee:
+
+```txt
+- only protocol_treasury authority can claim or sweep
+- transfers accrued_protocol_fee_usdc to protocol_treasury
+- subtracts claimed amount from accrued_protocol_fee_usdc
+- double claim impossible
+- does not change reserve balances
+```
+
+TODO / Open Question (per doc 13): exact claim instruction names, and whether creator and protocol claims are separate or unified, are not yet finalized. Names above are placeholders matching the requirements doc.

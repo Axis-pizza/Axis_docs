@@ -54,13 +54,15 @@ Recommended statuses:
 
 ```txt
 LAUNCH_READY
-DEVNET_SPIKE_CANDIDATE
+SPIKE_CANDIDATE
 ROUTE_REQUIRED
 PRICING_REQUIRED
 MINT_REQUIRED
 OPEN_SLOT
 DEFERRED
 ```
+
+TODO: `DEVNET_SPIKE_CANDIDATE` was renamed to `SPIKE_CANDIDATE` because public Devnet is no longer a mandatory validation path (see `12-pre-mainnet-validation-requirements.md`). A spike now means local / fork-based validation. Confirm the final status name.
 
 ### ASSET-004: Route readiness must be tracked separately
 

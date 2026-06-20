@@ -88,6 +88,21 @@ MathOverflow
 RoundingError
 ```
 
+## Fee Errors
+
+```txt
+InvalidFeeConfig
+FeeShareSumInvalid
+MintFeeCapExceeded
+RedeemFeeNotAllowed
+CreatorFeeCustomizationNotAllowed
+MarketFeeConfigImmutable
+InvalidCreatorFeeDestination
+InvalidProtocolTreasury
+DoubleFeeClaim
+FeeCustodyReserveOverlap
+```
+
 ## Authority Errors
 
 ```txt
@@ -96,4 +111,6 @@ UnauthorizedPolicyUpdate
 UnauthorizedRouteUpdate
 UnauthorizedPricingUpdate
 UnauthorizedPause
+UnauthorizedCreatorFeeClaim
+UnauthorizedProtocolFeeClaim
 ```

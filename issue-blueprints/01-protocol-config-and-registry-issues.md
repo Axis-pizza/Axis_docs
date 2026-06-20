@@ -7,6 +7,8 @@ Requirement IDs:
 ```txt
 ADMIN-001
 NFR-UPG-001
+FEE-011
+FEE-012
 ```
 
 Acceptance criteria:
@@ -17,6 +19,9 @@ Acceptance criteria:
 - stores registry authorities
 - stores default USDC mint
 - stores protocol treasury
+- stores protocol fee config (mint_fee_bps=100, redeem_fee_bps=0, creator_share_bps=4000, protocol_share_bps=6000, max_mint_fee_bps=300, max_redeem_fee_bps=0)
+- enforces mint_fee_bps <= max_mint_fee_bps and redeem_fee_bps <= max_redeem_fee_bps
+- enforces creator_share_bps + protocol_share_bps == 10000
 - unauthorized initialization/update fails
 ```
 

@@ -149,8 +149,10 @@ hard_min_allocation_usdc = 1 USDC
 
 Each asset allocation during mint must be at least 1 USDC.
 
+Allocation is computed from net USDC after mint fee deduction, not gross user input.
+
 ```txt
-asset_allocation_usdc_i = mint_amount_usdc × weight_bps_i / 10000
+asset_allocation_usdc_i = net_usdc_for_composition × weight_bps_i / 10000
 require asset_allocation_usdc_i >= 1 USDC
 ```
 
@@ -302,3 +304,43 @@ Goal:
 ```txt
 Block new risk while preserving exit paths.
 ```
+
+## 19. Fee Model
+
+Creator fee and protocol fee are required Axis v1 protocol concepts from launch, not future add-ons. See `13-fee-model-requirements.md`.
+
+Decision:
+
+```txt
+mint_fee_bps = 100
+redeem_fee_bps = 0
+
+creator_share_bps = 4000
+protocol_share_bps = 6000
+
+max_mint_fee_bps = 300
+max_redeem_fee_bps = 0
+```
+
+Fee model rules:
+
+```txt
+- fees are charged on the USDC side
+- mint fee is deducted before reserve composition (net_usdc_for_composition is used)
+- redeem has no explicit Axis exit fee
+- fees are claim-based, not immediately transferred
+- creators cannot customize fee bps per market
+- market fee config is immutable after market creation
+- fee custody is separate from reserve custody
+- accrued fees are excluded from NAV and not counted as reserve backing
+```
+
+## 20. Validation Path
+
+Decision:
+
+```txt
+Public Devnet is not a mandatory validation path or launch gate.
+```
+
+Axis v1 readiness is based on validation evidence, not on public Devnet runtime. Pre-mainnet validation relies on local tests, LiteSVM tests, local validator tests, mainnet-fork / cloned-account tests, production venue CPI integration tests, app contract integration smoke tests, and guarded mainnet candidate controls. Public Devnet may be used opportunistically. See `12-pre-mainnet-validation-requirements.md`.
