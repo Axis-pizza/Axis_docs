@@ -24,6 +24,8 @@ Read these in order:
 12. [Traceability Matrix](./requirements/11-traceability-matrix.md)
 13. [Pre-Mainnet Validation Requirements](./requirements/12-pre-mainnet-validation-requirements.md)
 14. [Fee Model Requirements](./requirements/13-fee-model-requirements.md)
+15. [Auction and LVR Design Research](./requirements/17-auction-and-lvr-design-research.md)
+16. [Secondary Market and ClearCorrection Requirements](./requirements/18-secondary-market-and-clear-correction-requirements.md)
 
 ## Program Specs
 
@@ -57,6 +59,8 @@ Axis Core must be able to create, mint, redeem, and account for DTFs independent
 ## Current Status
 
 The Axis v1 fee model is confirmed and required from launch (see [Fee Model Requirements](./requirements/13-fee-model-requirements.md)). Pre-mainnet validation does not require public Devnet (see [Pre-Mainnet Validation Requirements](./requirements/12-pre-mainnet-validation-requirements.md)).
+
+Axis v1 also requires a launch-day secondary-market surface. Public third-party DTF/USDC pools are external liquidity and may be indexed or displayed, but they do not receive an Axis LVR-mitigation claim. Axis-controlled JIT liquidity and ClearCorrection are separately gated by technical-spike evidence (see [Secondary Market and ClearCorrection Requirements](./requirements/18-secondary-market-and-clear-correction-requirements.md)).
 
 The following areas are intentionally not finalized yet:
 

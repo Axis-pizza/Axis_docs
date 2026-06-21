@@ -20,7 +20,8 @@ Users should be able to:
 3. Mint the DTF with USDC
 4. Have Axis compose underlying assets through CPI swaps
 5. Hold the DTF token
-6. Redeem the DTF back to USDC
+6. Trade, distribute, or use the DTF in partner or sponsor campaigns through a secondary-market surface
+7. Redeem the DTF back to USDC
 ```
 
 ## 3. Protocol Goal
@@ -53,6 +54,8 @@ Axis Core is responsible for:
 - approved CPI route validation
 ```
 
+Axis Auction Program, when enabled for a market, is a separate program responsible for Axis-controlled correction-auction state and settlement. It does not own DTF reserve custody, NAV, or mint/redeem accounting. See `18-secondary-market-and-clear-correction-requirements.md`.
+
 External systems may help with:
 
 ```txt
@@ -61,9 +64,13 @@ External systems may help with:
 - account assembly
 - UI display prices
 - distribution / routing into Axis markets
+- public DTF/USDC liquidity on third-party venues
+- secondary-market indexing and display
 ```
 
 But external systems must not be required for Axis Core accounting.
+
+Public third-party DTF/USDC pools are external liquidity. Axis may index or display them, but must not represent them as Axis-native liquidity or claim that they receive Axis LVR mitigation.
 
 ## 5. Requirement Naming
 
@@ -87,9 +94,11 @@ PMV-*         pre-mainnet validation requirements
 MAINNET-*     guarded mainnet launch requirements
 NFR-*         non-functional requirements
 TEST-*        testing requirements
+SECONDARY-*   secondary-market and external-pool requirements
+AUCTION-*     Axis Auction Program and ClearCorrection requirements
 ```
 
-## 7. Implementation Phasing
+## 6. Implementation Phasing
 
 ### Phase 0: Docs and Design Freeze
 
@@ -102,6 +111,8 @@ TEST-*        testing requirements
 - define creator fee requirements
 - define venue integration requirements
 - define pre-mainnet validation plan
+- define launch-day secondary-market surface and external-pool policy
+- define the Axis Auction Program boundary and ClearCorrection technical-spike plan
 - turn requirements into GitHub issues
 ```
 
@@ -216,7 +227,44 @@ Required capabilities:
 - document venue-specific risks
 ```
 
-### Phase 4: App Contract Integration
+### Phase 4: Launch-Day Secondary Market Surface
+
+Axis v1 must launch with a secondary-market surface so that created DTFs can be traded, distributed, and used in partner or sponsor campaigns from day one.
+
+Required capabilities:
+
+```txt
+- make created DTF markets and their transferable DTF tokens discoverable in the Axis app or an equivalent Axis-operated surface
+- expose market identity, reserve/NAV context, mint/redeem availability, and external DTF/USDC pool references where available
+- provide a canonical market URL or share URL and stable partner-facing market metadata
+- support clear routing or linking to public third-party DTF/USDC pools, including pools on Orca or Raydium
+- distinguish external public pools from Axis-native auction-enabled liquidity in all status and risk presentation
+- avoid any claim that external public pools receive Axis LVR mitigation
+- support market metadata that partners and sponsors can use for campaign and distribution integrations
+```
+
+Public third parties may create DTF/USDC pools without Axis permission. Axis may index or display eligible public pools, subject to the external-pool policy in `18-secondary-market-and-clear-correction-requirements.md`.
+
+### Phase 5: Axis-Controlled Auction Settlement Technical Spike
+
+All DTF markets must be architecturally compatible with future Axis-controlled JIT liquidity and NAV Correction Auctions. This does not mean that every market is enabled for auction/JIT liquidity at launch.
+
+The preferred research path is Axis-controlled JIT liquidity settled on Orca Whirlpool. ClearCorrection and auction state belong in a separate Axis Auction Program; Axis Core remains responsible for DTF creation, mint, redeem, reserve custody, NAV, and accounting.
+
+Required technical-spike outcomes:
+
+```txt
+- validate whether Axis-controlled JIT liquidity can settle a bounded correction on Orca Whirlpool
+- validate single-transaction ordered settlement as the preferred execution mode
+- measure account and compute feasibility across representative 2-to-5 asset DTF configurations, and identify which market classes can safely activate
+- validate NAV/pricing freshness, route support, winner-only authorization, and safe failure behavior
+- evaluate Jito bundles only as a fallback when they demonstrate ordered atomic execution and prevent non-winner interception
+- document activation gates and unresolved feasibility limits
+```
+
+This phase is not an August launch blocker. Production ClearCorrection / Auction Program activation remains gated by the technical-spike results and the per-market readiness gates in `18-secondary-market-and-clear-correction-requirements.md`.
+
+### Phase 6: App Contract Integration
 
 The app experience should not be treated as a full UX redesign in this requirements phase.
 
@@ -241,7 +289,7 @@ Required capabilities:
 
 Detailed UI and UX requirements should be defined in a separate app requirements document.
 
-### Phase 5: Partner Demo Readiness
+### Phase 7: Partner Demo Readiness
 
 Partner demos should be backed by contract-level evidence.
 
@@ -256,6 +304,7 @@ Partner demo readiness should support:
 - showing transaction or test evidence
 - explaining venue integration status
 - explaining how external teams can route into Axis-issued DTF exposure
+- showing the launch-day secondary-market surface and the distinction between external pools and any Axis-native auction-enabled liquidity
 ```
 
 Partner positioning:
@@ -274,7 +323,7 @@ Example partner narratives:
 - other Solana projects can collaborate around ecosystem-specific DTF markets
 ```
 
-### Phase 6: Guarded Mainnet Candidate
+### Phase 8: Guarded Mainnet Candidate
 
 Axis v1 should move toward mainnet only after required pre-mainnet validation evidence is available.
 
@@ -289,12 +338,15 @@ Mainnet candidate requirements:
 - creator fee behavior is implemented and tested
 - at least one production venue integration path is validated
 - app contract integration is tested
+- launch-day secondary-market surface is available and accurately labels external liquidity
 - local and fork-based tests pass
 - failure cases are tested
 - deployment source and binary traceability are documented
 - guarded launch controls are configured
 - known blockers are resolved or explicitly accepted
 ```
+
+Production-grade Axis-controlled JIT liquidity and ClearCorrection are not required for this guarded launch unless the technical spike has completed and the relevant market activation gates are satisfied. Axis must not claim LVR mitigation for public external pools.
 
 Guarded launch controls:
 

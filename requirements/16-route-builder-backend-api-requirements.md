@@ -237,18 +237,19 @@ Legacy assumptions to avoid:
 - Kagemusha strategy assumptions
 ```
 
-### 5.8 PFDA / LVR Is Separate From This Document
+### 5.8 Auction / LVR Authority Is Separate From Mint/Redeem Route Planning
 
-PFDA AMM and LVR reduction are not part of this route builder backend API document.
+Axis-controlled JIT liquidity and LVR mitigation are specified separately in `17-auction-and-lvr-design-research.md` and `18-secondary-market-and-clear-correction-requirements.md`.
 
-PFDA should be specified separately as an Axis-native liquidity / secondary market / MEV recapture layer.
-
-This document focuses on DTF v1 mint/redeem route planning.
+This document continues to focus on DTF v1 mint/redeem route planning. It additionally defines read/indexing data needed for the launch-day secondary-market surface, but it does not give the route builder auction authority.
 
 Requirement:
 
 ```txt
-PFDA / LVR must not be mixed into the v1 mint/redeem route builder API requirements.
+- the route builder remains canonical for mint/redeem route planning
+- the route builder is not the LVR-mitigation mechanism
+- the route builder cannot determine auction winners or grant correction rights
+- on-chain Axis Core and, where activated, the Axis Auction Program remain the validation and authorization authorities
 ```
 
 ## 6. Current Implementation Context
@@ -300,9 +301,10 @@ The route builder backend is responsible for:
 - transaction input preparation
 - route plan freshness metadata
 - route plan observability metadata
+- secondary-market read and indexing data, where the backend serves the Axis-operated surface
 ```
 
-The backend must not bypass on-chain validation.
+The backend must not bypass on-chain validation, determine auction winners, or grant correction rights.
 
 ### 7.3 Axis Core
 
@@ -654,6 +656,33 @@ Required category:
 ```
 
 The backend may later support unsigned `VersionedTransaction`, but this is optional for the first API version.
+
+### 9.9 Secondary-Market Read and Indexing Data
+
+Where the backend serves the Axis-operated secondary-market surface, it must provide read/indexing data separately from mint/redeem route plans.
+
+Known external DTF/USDC pool references must include:
+
+```txt
+- venue
+- pool address
+- DTF mint
+- USDC mint
+- verification status
+- external-liquidity classification
+```
+
+Market-level secondary-liquidity data must expose:
+
+```txt
+- market secondary-liquidity status
+- whether the market is architecturally compatible but inactive for Axis-native auction/JIT liquidity
+- auction/JIT activation readiness status, including unmet readiness categories where available
+- active Axis Auction Program / ClearCorrection status only when it is actually available
+- a clear distinction between external liquidity and Axis-native auction-enabled liquidity
+```
+
+This read model may include a canonical market URL or share URL and partner-facing metadata. It must not label an external pool as Axis-native or LVR-mitigated.
 
 ## 10. Quote Estimate Requirements
 
@@ -1132,6 +1161,59 @@ The following should be defined separately:
 - route/execution audit store model
 ```
 
+### 17.1 Secondary-Market Read and Indexing Requirements
+
+### RBA-037: Known external pools must be returned as read/indexing data
+
+The backend may list known external DTF/USDC pools for a market. Each result must return venue, pool address, DTF mint, USDC mint, and verification status.
+
+Acceptance criteria:
+
+```txt
+- an external pool result is explicitly classified as external liquidity
+- pool identity metadata can be verified against the stated DTF and USDC mints
+- unavailable or unverified data is not represented as a verified Axis-native pool
+```
+
+### RBA-038: Secondary-liquidity status must distinguish external and native liquidity
+
+The read API must distinguish external public liquidity from an explicitly active Axis-native auction/JIT configuration.
+
+Acceptance criteria:
+
+```txt
+- public Orca or Raydium DTF/USDC pools are returned as external unless separately activated as Axis-native
+- external pools receive no Axis LVR-mitigation claim
+- a market that is architecturally compatible but inactive is reported as inactive, not enabled
+```
+
+### RBA-039: Activation and ClearCorrection status must be read-only and evidence-based
+
+The read API may expose auction/JIT activation readiness and active Auction Program / ClearCorrection status only from indexed events or validated on-chain state.
+
+Acceptance criteria:
+
+```txt
+- readiness exposes relevant categories such as pool availability, pricing freshness, route support, Auction Program support, account/compute feasibility, and safety validation where known
+- no active ClearCorrection status is returned for a market without an activated native configuration
+- off-chain readiness data is not protocol authorization or accounting truth
+```
+
+### RBA-040: Route builder must not receive auction authority
+
+The route builder may prepare advisory account or transaction data where separately authorized by the Auction Program design, but it must not select auction winners, grant correction rights, or bypass Axis Core or Auction Program validation.
+
+Recommended event/indexing concepts:
+
+```txt
+- external_pool_discovered
+- external_pool_verified
+- auction_market_registered
+- native_liquidity_activated
+- native_liquidity_disabled
+- clear_correction_executed
+```
+
 ## 18. Authentication and Trust Requirements
 
 ### RBA-029: Read and quote endpoints may be public
@@ -1359,6 +1441,17 @@ Acceptance criteria:
 - 5-asset redeem route plan smoke test succeeds
 ```
 
+### 21.10 Secondary-Market Read and Indexing Tests
+
+```txt
+- known external pool result includes venue, pool address, DTF mint, USDC mint, and verification status
+- external pool is labelled external liquidity
+- external and active Axis-native statuses are distinguishable
+- architecturally compatible but inactive market is not labelled auction/JIT enabled
+- active Auction Program / ClearCorrection status is absent when unavailable
+- read/indexing API cannot grant correction rights or choose winners
+```
+
 ## 22. Mainnet Readiness Gate
 
 The route builder backend is part of Axis v1 mainnet readiness.
@@ -1393,6 +1486,7 @@ Axis v1 should not be considered route-builder-ready unless:
 - local integration tests pass
 - mainnet-fork or cloned-account integration tests pass where applicable
 - simulation / smoke tests pass for required production venues
+- secondary-market read/indexing data accurately distinguishes external and active Axis-native liquidity where the backend serves that surface
 ```
 
 ## 23. Relationship to Other Documents
@@ -1410,6 +1504,8 @@ This document depends on:
 - 13-fee-model-requirements.md
 - 14-production-venue-integration-requirements.md
 - 15-app-contract-interface-requirements.md
+- 17-auction-and-lvr-design-research.md
+- 18-secondary-market-and-clear-correction-requirements.md
 ```
 
 This document should be followed by separate documents for:
@@ -1485,4 +1581,7 @@ The following are intentionally deferred:
 - Add venue account assembly tests
 - Add simulation / smoke tests for Orca Whirlpool
 - Add simulation / smoke tests for Raydium CPMM
+- Add external DTF/USDC pool indexing and verification-status reads
+- Add secondary-liquidity and auction/JIT activation-status reads
+- Add secondary-market event indexing for pool and ClearCorrection lifecycle events
 ```

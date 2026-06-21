@@ -268,7 +268,48 @@ Requirements:
 - balance delta used for accounting
 ```
 
-## 10. ER Diagram
+## 10. Proposed Auction Program Accounts (Spike-Scoped)
+
+The following accounts are proposed only for the Axis-controlled JIT liquidity / ClearCorrection technical spike. They are not finalized Axis v1 account layouts and do not make every DTF market auction/JIT enabled.
+
+Exact fields, PDA seeds, ownership model, token-account layout, lifecycle transitions, and configurable parameters remain TBD until the Orca Whirlpool and atomic-settlement spikes are complete.
+
+```txt
+AuctionConfig
+  Global Auction Program configuration and pause/authority boundary.
+
+AuctionMarketConfig
+  Per-market native-liquidity configuration, including the DTF market reference,
+  settlement venue/pool reference, activation state, and validation references.
+
+CorrectionAuction
+  A bounded correction-auction record, including its market configuration,
+  status, winner/expiry state, and settlement references.
+
+CorrectionRight
+  A winner-bound, consumable authorization reference for one correction auction.
+
+AuctionRevenueVault
+  Dedicated custody/accounting boundary for auction revenue.
+
+AxisControlledPositionRef
+  Reference to the venue position and authority model used by an activated
+  Axis-controlled JIT liquidity configuration.
+```
+
+Requirements:
+
+```txt
+- these accounts belong to the separate Axis Auction Program boundary
+- they must not hold or account for DTF reserve backing
+- AuctionRevenueVault revenue is excluded from DTF reserves, NAV, and mint/redeem fee accounting
+- AuctionMarketConfig activation is per market and remains gated by technical-spike and safety evidence
+- the account model must preserve Axis Core as the authority for DTF creation, mint, redeem, reserve custody, NAV, and primary accounting
+```
+
+See `requirements/18-secondary-market-and-clear-correction-requirements.md` for the activation requirements.
+
+## 11. ER Diagram
 
 ```mermaid
 erDiagram

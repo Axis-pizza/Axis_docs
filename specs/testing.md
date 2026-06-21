@@ -97,3 +97,35 @@ TEST-FEE-015: failed mint accrues no fees
 TEST-FEE-016: accrued fees excluded from NAV and reserve backing
 TEST-FEE-017: fee custody account is separate from reserve accounts
 ```
+
+## 8. Launch-Day Secondary-Market Surface Tests
+
+```txt
+TEST-SECONDARY-001: created DTF market is discoverable on the Axis-operated surface
+TEST-SECONDARY-002: DTF token mint is visible with market identity
+TEST-SECONDARY-003: known external DTF/USDC pool can be displayed with venue, pool address, mints, and verification status
+TEST-SECONDARY-004: external and Axis-native auction-enabled liquidity statuses are distinct
+TEST-SECONDARY-005: external pool is never labelled as Axis LVR-mitigated solely because it trades a DTF
+TEST-SECONDARY-006: architecturally compatible but inactive market is not labelled auction/JIT enabled
+TEST-SECONDARY-007: canonical market/share URL and partner-facing metadata are available where the surface provides them
+```
+
+## 9. Proposed Auction Program / ClearCorrection Spike Tests
+
+These tests are spike-scoped and do not make production ClearCorrection a minimum August launch requirement.
+
+```txt
+TEST-AUCTION-001: authorized winner can execute a valid bounded ClearCorrection
+TEST-AUCTION-002: wrong winner is rejected
+TEST-AUCTION-003: wrong pool or native-liquidity configuration is rejected
+TEST-AUCTION-004: stale or invalid NAV/pricing input is rejected
+TEST-AUCTION-005: expired correction auction or right is rejected
+TEST-AUCTION-006: replayed correction right is rejected
+TEST-AUCTION-007: failed correction does not record successful auction payment
+TEST-AUCTION-008: auction revenue is excluded from DTF reserves and NAV
+TEST-AUCTION-009: auction revenue is separate from mint/redeem fee accounting
+TEST-AUCTION-010: controlled position/authority and increase/swap/decrease ordering are measured in the Orca spike
+TEST-AUCTION-011: account, tick-array, compute, and transaction-size feasibility are measured
+TEST-AUCTION-012: one-transaction settlement is evaluated before any Jito fallback
+TEST-AUCTION-013: if Jito is evaluated, ordered atomicity and non-winner interception assumptions are documented and tested
+```

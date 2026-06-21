@@ -8,7 +8,7 @@ This document defines the venue integration requirements required for mainnet re
 
 `05-swap-cpi-execution-requirements.md` defines the general swap/CPI execution model.
 
-This document focuses specifically on production venue readiness.
+This document focuses specifically on production venue readiness. It distinguishes underlying mint/redeem execution readiness from the separate, gated secondary-settlement research path.
 
 Axis is not a general-purpose DEX aggregator.
 
@@ -47,6 +47,33 @@ However, the minimum production venue launch gate is:
 - Orca Whirlpool
 - Raydium CPMM fallback
 ```
+
+### Venue Roles
+
+Venue readiness is role-specific. A venue may satisfy one role without satisfying another.
+
+```txt
+Role A — underlying execution venue for mint/redeem
+  Axis Core executes ApprovedRoute-validated CPI swaps to compose or unwind DTF reserves.
+
+Role B — secondary settlement venue for ClearCorrection / Axis-controlled JIT liquidity
+  The Axis Auction Program coordinates a market-specific, activated correction path.
+
+Role C — external public secondary-liquidity venue
+  A third party may create a public DTF/USDC pool. Axis may index or display it as external liquidity.
+```
+
+Current classification:
+
+```txt
+Orca Whirlpool: Role A first candidate; Role B first technical-spike candidate
+Raydium CPMM:  Role A fallback; possible Role C venue
+PumpSwap and other venues: future Role A candidates where relevant
+```
+
+Role C pools are not Axis-native liquidity. A public DTF/USDC pool on Orca or Raydium is not LVR-mitigated by Axis unless a separate Axis-native auction/JIT configuration is explicitly activated for the market.
+
+Role B is not part of the minimum August launch gate. It requires the separate technical-spike and per-market activation evidence in `18-secondary-market-and-clear-correction-requirements.md`.
 
 ## 2. Goals
 
@@ -621,9 +648,33 @@ Acceptance criteria:
 - future venue documents venue-specific risks
 ```
 
-## 9. Venue Priority
+### VENUE-024: Role B settlement readiness must remain distinct from Role A and Role C
 
-Current production venue priority:
+Role B settlement readiness for Axis-controlled JIT liquidity / ClearCorrection must be evaluated independently of Role A mint/redeem CPI readiness and Role C public-pool availability.
+
+Orca Whirlpool is the first Role B candidate. The technical spike must:
+
+```txt
+- create or reference a DTF/USDC Whirlpool configuration
+- validate the Axis-controlled position ownership or authority model
+- validate ordered increase-liquidity, correction-swap, and decrease-liquidity operations
+- measure accounts, tick arrays, compute usage, and transaction size
+- evaluate single-transaction settlement first
+- evaluate Jito bundles only if one-transaction settlement is infeasible and the required ordered atomicity and non-winner interception protections are demonstrated
+```
+
+Acceptance criteria:
+
+```txt
+- Role A Orca CPI success is not treated as Role B readiness
+- a public Orca or Raydium DTF/USDC pool is not treated as Axis-native liquidity
+- Role B activation is market-specific and requires Auction Program support, fresh pricing, route support, resource feasibility, and safety validation
+- the spike result does not create a hard August launch blocker unless a later decision explicitly promotes it
+```
+
+## 9. Role A Venue Priority
+
+Current Role A production venue priority:
 
 ```txt
 1. Orca Whirlpool
@@ -743,7 +794,21 @@ PumpSwap is strategically important for PMF, but is not required as part of the 
 - failed venue execution reverts parent mint or redeem
 ```
 
-## 11. Mainnet Readiness Gate
+### 10.7 Orca Role B Secondary Settlement Spike Tests
+
+These tests are proposed and are required before production Role B activation, not before the launch-day secondary-market surface.
+
+```txt
+- controlled position/authority validation
+- increase-liquidity, correction-swap, decrease-liquidity ordering
+- account, tick-array, compute, and transaction-size measurement
+- one-transaction feasibility test
+- wrong winner, wrong pool, stale NAV, replay, expiry, and failed-correction tests
+- auction revenue separation and failure-rollback tests
+- constrained Jito fallback evaluation only if the one-transaction path is infeasible
+```
+
+## 11. Role A Mainnet Readiness Gate
 
 Production venue integration is a mainnet readiness gate.
 
@@ -768,6 +833,8 @@ Axis v1 must not be considered mainnet-ready unless:
 
 Controlled adapter tests are useful but insufficient for this gate.
 
+Role B production ClearCorrection readiness is a separate, conditional gate. It is required only for a market that Axis elects to activate for Axis-controlled JIT liquidity; it is not required for the minimum launch-day secondary-market surface.
+
 ## 12. Out of Scope
 
 The following are out of scope for the initial production venue readiness gate unless later explicitly decided:
@@ -781,6 +848,7 @@ The following are out of scope for the initial production venue readiness gate u
 - all long-tail assets
 - unsupported SOL intermediate routes
 - venue integrations without balance delta accounting
+- production ClearCorrection / Axis Auction Program activation unless separately approved after technical-spike evidence
 ```
 
 ## 13. Open Questions
@@ -819,4 +887,7 @@ The following are out of scope for the initial production venue readiness gate u
 - Document Raydium CPMM venue-specific risks
 - Document SDK quote vs Axis CPI readiness distinction
 - Document execution spread vs Axis fee distinction
+- Run Orca Role B controlled-position and one-transaction settlement spike
+- Measure Role B accounts, tick arrays, compute usage, and transaction size
+- Document Role B Jito fallback evidence only if required
 ```

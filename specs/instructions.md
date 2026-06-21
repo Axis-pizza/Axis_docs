@@ -313,3 +313,51 @@ ClaimProtocolFee:
 ```
 
 TODO / Open Question (per doc 13): exact claim instruction names, and whether creator and protocol claims are separate or unified, are not yet finalized. Names above are placeholders matching the requirements doc.
+
+## 13. Proposed Auction Program Instructions (Spike-Scoped)
+
+The following are proposed instructions for the separate Axis Auction Program. They are scoped to the Axis-controlled JIT liquidity / ClearCorrection technical spike and are not finalized Axis v1 instructions.
+
+Exact instruction arguments, account metas, PDA derivations, configurable parameters, auction timing, bid format, correction limits, and revenue distribution remain TBD until the technical spikes establish a safe implementation envelope.
+
+```txt
+InitializeAuctionConfig
+  Initializes proposed global Auction Program configuration.
+
+RegisterAuctionMarket
+  Registers a proposed per-market Auction Program configuration after the
+  required native-liquidity activation evidence is available.
+
+OpenCorrectionAuction
+  Opens a bounded correction auction for an activated market configuration.
+
+SubmitCorrectionBid
+  Records a proposed correction bid under the eventual winner-selection model.
+
+FinalizeCorrectionAuction
+  Finalizes the valid winner and creates or enables the winner-bound correction right.
+
+ClearCorrection
+  Executes the winner-authorized, bounded correction settlement.
+
+ExpireCorrectionAuction
+  Safely expires an unexecuted correction auction or right.
+
+ClaimAuctionRevenue
+  Claims or transfers revenue from the dedicated AuctionRevenueVault under
+  the eventual authorized accounting model.
+```
+
+`ClearCorrection` requirements:
+
+```txt
+- must verify the auction, market configuration, winner authorization, expiry, and replay protection
+- must verify the activated settlement pool/configuration and validated NAV/pricing inputs
+- must enforce configured correction bounds without hard-coding values in this spec
+- must settle revenue only through dedicated Auction Program accounting
+- must target one-transaction settlement first; Jito is a fallback only after the documented atomicity and interception-protection evidence exists
+- must not access DTF reserve backing as auction liquidity
+- must not bypass Axis Core ApprovedRoute, pricing, min_out, balance-delta, reserve, or fee validations when a correction strategy involves mint or redeem
+```
+
+The Auction Program does not replace Axis Core. Axis Core remains responsible for DTF creation, mint, redeem, reserve custody, NAV, pricing validation, and primary mint/redeem accounting.

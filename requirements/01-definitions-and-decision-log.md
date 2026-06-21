@@ -344,3 +344,105 @@ Public Devnet is not a mandatory validation path or launch gate.
 ```
 
 Axis v1 readiness is based on validation evidence, not on public Devnet runtime. Pre-mainnet validation relies on local tests, LiteSVM tests, local validator tests, mainnet-fork / cloned-account tests, production venue CPI integration tests, app contract integration smoke tests, and guarded mainnet candidate controls. Public Devnet may be used opportunistically. See `12-pre-mainnet-validation-requirements.md`.
+
+## 21. Launch-Day Secondary Market Surface
+
+Decision:
+
+```txt
+Axis v1 launches with a secondary-market surface from day one.
+```
+
+Created DTFs must be usable as tradable and distributable tokens, including in partner or sponsor campaigns. The launch requirement is a discoverable Axis-operated surface that presents the market and available secondary-liquidity references; it is not a requirement that Axis-native auction/JIT liquidity be production-enabled for every market on day one.
+
+See `18-secondary-market-and-clear-correction-requirements.md`.
+
+## 22. Public Third-Party DTF/USDC Pools
+
+Decision:
+
+```txt
+Third parties may create public DTF/USDC pools on external venues, including Orca and Raydium.
+```
+
+These pools are external liquidity. Axis may index or display verified pool references, but they are not part of Axis reserve custody or Axis Core accounting.
+
+External-pool policy:
+
+```txt
+- public external pools are not Axis-native liquidity
+- public external pools are not protected by Axis LVR mitigation
+- Axis must not market or label public external pools as auction-enabled unless the separate Axis Auction Program controls the relevant settlement path
+- external pool prices are not reserve NAV and do not replace the Pricing Source Registry
+```
+
+## 23. Scope of Axis-Native LVR Mitigation
+
+Decision:
+
+```txt
+Axis-native LVR mitigation applies only to liquidity using Axis-controlled auction/JIT settlement.
+```
+
+The LVR-mitigated surface is therefore not a generic property of the DTF token or of any DTF/USDC pool. It is a property of an explicitly activated Axis-native liquidity configuration.
+
+## 24. Preferred Axis-Native Secondary Liquidity Path
+
+Decision:
+
+```txt
+Preferred research path = Axis-controlled JIT liquidity on Orca.
+First settlement venue candidate = Orca Whirlpool.
+```
+
+This choice applies to the Axis-controlled JIT liquidity / NAV correction design, not to the existing mint/redeem venue order. Raydium remains an important underlying mint/redeem execution fallback and may host external liquidity, but it is not the first settlement target for the Axis-controlled JIT research path.
+
+## 25. Architectural Compatibility and Activation
+
+Decision:
+
+```txt
+All DTF markets are architecturally compatible with Axis-controlled JIT liquidity and NAV Correction Auctions.
+```
+
+Architectural compatibility is not activation. A market may be enabled only after its pool availability, pricing freshness, route support, auction-program support, account/compute feasibility, and safety validation have passed the applicable readiness gates. Until then, the market may use the launch-day secondary-market surface and external liquidity without an Axis LVR-mitigation claim.
+
+## 26. Auction Program Boundary
+
+Decision:
+
+```txt
+ClearCorrection and NAV Correction Auction logic belong in a separate Axis Auction Program.
+```
+
+Axis Core remains responsible for:
+
+```txt
+- DTF market creation
+- mint and redeem
+- reserve custody and reserve accounting
+- NAV calculation and pricing-source validation
+- primary-flow fee accounting
+```
+
+The Axis Auction Program is responsible for auction state, winner authorization, correction bounds, correction settlement coordination, auction payment settlement, and auction events. It must not treat auction revenue as DTF reserve backing.
+
+## 27. Correction Settlement Atomicity
+
+Decision:
+
+```txt
+Preferred ClearCorrection execution mode = one transaction.
+```
+
+If a one-transaction design is not feasible, Jito bundles may be considered only as a fallback after technical validation demonstrates ordered atomic execution and prevents non-winner interception. A multi-transaction fallback without those properties is not acceptable for a correction settlement path.
+
+## 28. Auction Revenue Separation
+
+Decision:
+
+```txt
+Auction revenue is accounted for separately from DTF reserves and mint/redeem fees.
+```
+
+The expected accounting boundary is an `AuctionRevenueVault` or an equivalent dedicated account model. Exact account layout, revenue recipients, fee splits, bid format, and claim mechanics remain configurable/TBD. Auction revenue is excluded from DTF reserve value and NAV.

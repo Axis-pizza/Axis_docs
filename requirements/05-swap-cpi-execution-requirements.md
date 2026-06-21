@@ -49,6 +49,22 @@ Axis Core is responsible for:
 
 The program must reject execution if the route plan cannot be validated on-chain.
 
+### 2.1 Venue Roles
+
+Axis uses venue integrations for distinct purposes:
+
+```txt
+Role A — underlying mint/redeem execution venue
+  Axis Core uses an ApprovedRoute to compose reserves on mint or unwind reserves on redeem.
+
+Role B — secondary settlement venue for Axis-controlled JIT liquidity / ClearCorrection
+  The Axis Auction Program may use a venue only after a market-specific native-liquidity configuration is activated.
+```
+
+Role A preserves the existing Axis Core execution boundary: off-chain systems may discover routes and assemble accounts, while Axis Core validates ApprovedRoute, input/output token mints, venue accounts, min_out, and actual balance deltas on-chain.
+
+Role B is separate from Role A readiness. A successful mint/redeem CPI integration does not prove that a venue can safely settle Axis-controlled JIT liquidity or ClearCorrection. Public third-party DTF/USDC pools are external liquidity and are not Role B merely because they use the same venue.
+
 ## 3. Adapter Architecture
 
 ```mermaid
@@ -371,7 +387,7 @@ Acceptance criteria:
 - venue-specific risks must be documented separately
 ```
 
-### EXEC-015: Mainnet readiness requires at least two production venue paths
+### EXEC-015: Mainnet readiness requires at least two Role A production venue paths
 
 Axis v1 must validate at least two production venue integration paths before mainnet launch.
 
@@ -395,7 +411,7 @@ Acceptance criteria:
 - both paths document venue-specific risks
 ```
 
-### EXEC-016: First production venue candidate is Orca Whirlpool
+### EXEC-016: Orca Whirlpool is the first Role A production venue candidate
 
 The first production venue candidate is Orca Whirlpool.
 
@@ -423,7 +439,7 @@ Acceptance criteria:
 - invalid account tests fail safely
 ```
 
-### EXEC-017: Fallback production venue candidate is Raydium CPMM
+### EXEC-017: Raydium CPMM is the Role A fallback production venue candidate
 
 The fallback production venue candidate is Raydium CPMM.
 
@@ -504,9 +520,28 @@ Acceptance criteria:
 - failed redeem does not permanently burn DTF tokens
 ```
 
-## 8. Venue Priority
+### EXEC-021: Secondary settlement venue feasibility must be evaluated separately
 
-Current production venue priority:
+Axis-controlled JIT liquidity / ClearCorrection requires a separate Role B settlement-venue spike. Orca Whirlpool is the first Role B candidate.
+
+The spike must not be treated as mint/redeem execution readiness, and a passing Role A Orca integration must not be treated as Role B readiness.
+
+Acceptance criteria:
+
+```txt
+- create or reference a DTF/USDC Orca Whirlpool suitable for the spike
+- validate the controlled Whirlpool position ownership or authority model
+- perform the ordered increase-liquidity, correction-swap, and decrease-liquidity path
+- measure required accounts, tick arrays, compute units, and transaction size
+- evaluate whether the complete authorized path fits in one transaction
+- evaluate a Jito bundle fallback only if one-transaction settlement is infeasible
+- require any Jito fallback to demonstrate ordered atomic execution and non-winner interception protection
+- record that no public third-party pool receives an Axis-native LVR-mitigation claim from this spike alone
+```
+
+## 8. Role A Venue Priority
+
+Current Role A production venue priority:
 
 ```txt
 1. Orca Whirlpool
@@ -537,7 +572,7 @@ PumpSwap, Raydium CLMM, and Meteora DLMM are important future candidates but are
 - failed controlled adapter execution reverts parent transaction
 ```
 
-### 9.2 Orca Whirlpool Tests
+### 9.2 Orca Whirlpool Role A Tests
 
 ```txt
 - verify Orca Whirlpool program id
@@ -552,7 +587,7 @@ PumpSwap, Raydium CLMM, and Meteora DLMM are important future candidates but are
 - wrong output mint fails
 ```
 
-### 9.3 Raydium CPMM Tests
+### 9.3 Raydium CPMM Role A Tests
 
 ```txt
 - verify Raydium CPMM program id
@@ -591,7 +626,28 @@ PumpSwap, Raydium CLMM, and Meteora DLMM are important future candidates but are
 - execution spread is not recorded as Axis fee
 ```
 
-## 10. Issue Candidates
+### 9.6 Orca Secondary Settlement Spike Tests
+
+These are proposed technical-spike tests, not Role A mint/redeem readiness tests and not a general mainnet launch blocker.
+
+```txt
+- create or reference a DTF/USDC Orca Whirlpool for the spike
+- validate controlled position ownership or authority
+- increase liquidity, execute the bounded correction swap, and decrease liquidity in the required order
+- measure required accounts, tick arrays, compute units, and transaction size
+- attempt the complete path in one transaction
+- evaluate Jito only if one transaction is infeasible
+- verify wrong authority, wrong pool, stale pricing/NAV, replay, expiry, and failed-correction behavior fail safely
+- verify failed correction does not record successful auction payment or affect Axis Core reserve accounting
+```
+
+## 10. Secondary Settlement Venue Spike
+
+The Orca Role B spike is gated by the Axis Auction Program and per-market activation requirements in `18-secondary-market-and-clear-correction-requirements.md`. It does not enable a DTF market or create an Axis-native LVR-mitigation claim until those requirements are met.
+
+Preferred execution mode is one transaction. Jito bundles are a fallback only under the conditions in EXEC-021.
+
+## 11. Issue Candidates
 
 ```txt
 - Define ApprovedRoute account
@@ -616,4 +672,8 @@ PumpSwap, Raydium CLMM, and Meteora DLMM are important future candidates but are
 - Add production venue fork-based tests
 - Add route validation tests
 - Add all-or-nothing execution tests
+- Implement Orca Whirlpool secondary settlement feasibility spike
+- Measure Orca secondary settlement account, tick-array, compute, and transaction-size requirements
+- Document controlled Whirlpool position authority model
+- Evaluate one-transaction ClearCorrection settlement and constrained Jito fallback
 ```

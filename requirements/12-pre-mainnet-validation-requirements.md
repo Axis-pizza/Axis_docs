@@ -208,6 +208,27 @@ Guarded launch controls should include:
 
 Mainnet launch must not be treated as a general public launch until required validation evidence is available.
 
+### 5.7 Separate Readiness Gates
+
+Axis v1 readiness is divided into distinct gates:
+
+```txt
+Core mainnet readiness
+  Reserve-backed DTF creation, mint, redeem, NAV, accounting, fees, and safety controls are validated.
+
+Launch-day secondary-market surface readiness
+  DTFs are discoverable for secondary use and any external liquidity is accurately labelled.
+
+Production venue execution readiness
+  Role A Orca Whirlpool and Raydium CPMM mint/redeem execution paths are validated.
+
+Axis-controlled JIT liquidity spike readiness
+  The Orca Role B technical spike produces feasibility and safety evidence. This is not a general launch blocker.
+
+Production ClearCorrection readiness, if activated
+  A market-specific Axis Auction Program configuration may activate only after its applicable readiness gates pass.
+```
+
 ## 6. Requirements
 
 ### PMV-001: Public Devnet must not be required for mainnet readiness
@@ -306,7 +327,7 @@ Acceptance criteria:
 * creator fee accounting does not break reserve accounting
 * creator fee behavior is visible to app integration where relevant
 
-### PMV-007: Venue integration must be validated before mainnet launch
+### PMV-007: Role A venue integration must be validated before mainnet launch
 
 Axis v1 must validate at least two production venue integration paths before mainnet launch (Orca Whirlpool and Raydium CPMM fallback). See `05-swap-cpi-execution-requirements.md` (EXEC-015, EXEC-016, EXEC-017).
 
@@ -439,6 +460,53 @@ Acceptance criteria:
 
 Partner demo requirements should be defined in a separate partner BD requirements document.
 
+### PMV-015: Launch-day secondary-market surface must be validated before launch
+
+The launch-day secondary-market surface is a required mainnet launch gate. It does not require production ClearCorrection or an active Axis-native JIT configuration for every DTF market.
+
+Acceptance criteria:
+
+```txt
+- created DTF markets are discoverable
+- DTF token mints are visible
+- known external pool references can be displayed where available
+- external liquidity is labelled accurately and distinctly from Axis-native auction-enabled liquidity
+- no LVR-mitigation claim is made for an external public pool
+- canonical market/share URL and partner or sponsor campaign metadata are available where the Axis-operated surface provides them
+- a market that is architecturally compatible but inactive is not labelled auction/JIT enabled
+```
+
+### PMV-016: Axis-controlled JIT liquidity spike must be validated before native activation
+
+Axis-controlled JIT liquidity requires separate technical-spike evidence before a market-specific native configuration can activate. This requirement is not a hard August launch blocker for the secondary-market surface.
+
+Acceptance criteria:
+
+```txt
+- Orca DTF/USDC Whirlpool feasibility is evaluated
+- controlled position ownership or authority feasibility is evaluated
+- increase-liquidity, correction-swap, and decrease-liquidity ordering is tested
+- account, tick-array, compute-unit, and transaction-size requirements are measured
+- one-transaction settlement is evaluated first
+- Jito fallback is evaluated only if the one-transaction path is infeasible
+- wrong winner, wrong pool, stale NAV, replay, expiry, and failure rollback paths are tested
+- auction revenue separation is tested
+```
+
+### PMV-017: Production ClearCorrection readiness is conditional on activation
+
+Production ClearCorrection and the Axis Auction Program are required only for a market that Axis explicitly activates for Axis-controlled JIT liquidity. They are not required for the minimum August launch gate unless a later decision changes that scope.
+
+Acceptance criteria for an activated market:
+
+```txt
+- pool availability, pricing freshness, route support, Auction Program support, account/compute feasibility, and safety validation pass
+- ClearCorrection is winner-authorized, bounded, and separate from Axis Core reserve/NAV/accounting authority
+- single-transaction settlement succeeds, or a validated Jito fallback provides ordered atomic execution and non-winner interception protection
+- failed correction does not record successful payment or affect Axis Core reserve accounting
+- auction revenue is excluded from DTF reserves, NAV, and mint/redeem fees
+```
+
 ## 7. Required Test Scenarios
 
 The following test scenarios must be covered before mainnet launch.
@@ -537,6 +605,29 @@ The following test scenarios must be covered before mainnet launch.
 * display reserve-backed state
 * display creator fee information where relevant
 
+### 7.8 Launch-Day Secondary-Market Surface
+
+* created DTF market is discoverable
+* DTF token mint is visible
+* known external DTF/USDC pool reference is displayed where available
+* external liquidity label is distinct from Axis-native auction-enabled liquidity
+* no false Axis LVR-mitigation claim is displayed for an external pool
+* canonical market/share URL and partner/sponsor metadata are available where applicable
+* architecturally compatible but inactive status is displayed accurately
+
+### 7.9 Axis-Controlled JIT / ClearCorrection Spike
+
+These are proposed activation tests, not minimum launch-day secondary-market tests.
+
+* Orca DTF/USDC Whirlpool feasibility
+* controlled position/authority feasibility
+* increase/swap/decrease ordering
+* account, tick-array, compute, and transaction-size measurement
+* one-transaction feasibility
+* Jito fallback evaluation only if required
+* wrong winner, wrong pool, stale NAV, replay, expiry, and failure rollback rejection
+* auction revenue separation from reserves, NAV, and mint/redeem fees
+
 ## 8. Partner Integration Context
 
 Axis v1 partner demos should support the following integration narratives.
@@ -600,10 +691,13 @@ Minimum launch gate:
 * reserve backing is observable
 * creator fee behavior is implemented and tested
 * app contract integration is tested
+* launch-day secondary-market surface is validated, including accurate external-liquidity labels
 * guarded launch controls are configured
 * deployment source and binary traceability are documented
 * known blockers are resolved or explicitly accepted
 * launch checklist is completed
+
+Production ClearCorrection / Axis Auction Program activation is not a minimum August launch condition. It becomes a separate production gate only for an explicitly activated Axis-controlled JIT liquidity configuration.
 
 ## 10. Out of Scope
 
@@ -620,6 +714,7 @@ The following are out of scope for this document:
 * full 500-asset production universe
 * full permissionless route creation
 * public Devnet deployment as a required milestone
+* production ClearCorrection / full Axis Auction Program activation as a minimum August launch requirement
 
 These should be handled in separate documents where needed.
 
@@ -661,3 +756,6 @@ The following decisions remain open:
 * Define app contract integration smoke tests
 * Define partner demo evidence requirements
 * Define mainnet launch gate checklist
+* Validate launch-day secondary-market surface and external-liquidity labels
+* Run Orca Axis-controlled JIT liquidity technical spike
+* Define conditional production ClearCorrection readiness checklist
