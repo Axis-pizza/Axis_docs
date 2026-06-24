@@ -195,18 +195,28 @@ Required capabilities:
 
 ### Phase 3: Production Venue Integration
 
-At least one production venue integration path must be validated before mainnet launch.
+At least two production venue integration paths must be validated before mainnet launch.
+
+Required production venue paths:
+
+```txt
+1. Orca Whirlpool
+2. Raydium CPMM fallback
+```
+
+The first production venue candidate is Orca Whirlpool.
+
+The fallback production venue candidate is Raydium CPMM.
 
 A venue is not Axis-ready only because an SDK can quote a route.
 
 A venue is Axis-ready only when Axis Core can validate the route, execute the CPI, move real tokens, verify actual balance deltas, enforce min_out, and measure compute/account usage.
 
-Candidate venue integrations:
+Later venue candidates may be evaluated after the first two required paths are validated:
 
 ```txt
-- Orca Whirlpool
-- Raydium CPMM
 - PumpSwap
+- Raydium CLMM
 - Meteora DLMM
 ```
 
@@ -225,7 +235,8 @@ Required capabilities:
 - measure compute usage
 - measure account usage
 - document venue-specific risks
-```
+```　
+
 
 ### Phase 4: Launch-Day Secondary Market Surface
 
@@ -336,7 +347,10 @@ Mainnet candidate requirements:
 - actual balance delta accounting is validated
 - reserve backing is observable
 - creator fee behavior is implemented and tested
-- at least one production venue integration path is validated
+- at least two production venue integration paths are validated:
+  - Orca Whirlpool
+  - Raydium CPMM fallback
+- controlled adapter tests alone are not treated as production venue readiness
 - app contract integration is tested
 - launch-day secondary-market surface is available and accurately labels external liquidity
 - local and fork-based tests pass
