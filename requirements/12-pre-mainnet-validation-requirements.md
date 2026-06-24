@@ -321,7 +321,8 @@ Acceptance criteria:
 * creator fee configuration is validated
 * creator fee bps is bounded
 * creator fee accrual is tested
-* creator fee claim or sweep path is defined
+* explicit creator and protocol fee claim paths are defined
+* exact fee custody account layout is documented or explicitly left as an implementation-review item
 * creator and protocol fees accrue only on mint; no fee accrues on redeem
 * fees are claim-based, not immediately transferred
 * creator fee accounting does not break reserve accounting
@@ -722,25 +723,37 @@ These should be handled in separate documents where needed.
 
 The following decisions remain open:
 
-* production venue candidates beyond the first two (Orca Whirlpool and Raydium CPMM are confirmed; see 05-swap-cpi-execution-requirements.md)
-* creator fee claim or sweep mechanism (fee bps and split are confirmed; see 13-fee-model-requirements.md)
-* initial mainnet asset universe
+* exact initial ApprovedRoute set for the supported v0 asset list
 * initial guarded launch limits
-* initial approved route set
-* whether initial launch is invite-only, partner-only, or public
 * exact app integration milestone
 * reserve/NAV display source for app
 * monitoring and alerting setup
 * upgrade authority and governance process
 * audit timing
 * partner demo sequence
+* exact fee custody account layout
+* exact fee claim instruction naming and sweep implementation details
+* production venue candidates beyond the first two required paths:
+
+  * Orca Whirlpool
+  * Raydium CPMM fallback
+
+The following items are no longer open questions for this document:
+
+* public Devnet is not required for mainnet readiness
+* Axis v1 launch is intended to be public rather than invite-only
+* DTF creation is intended to be open within approved asset and policy constraints
+* the initial asset universe process is defined in `08-asset-universe-requirements.md`
+* Orca Whirlpool and Raydium CPMM fallback are the first two required production venue paths
+* production ClearCorrection / Axis Auction Program activation is not a minimum August launch condition
+
 
 ## 12. Issue Candidates
 
-* Rename Devnet rollout requirements to pre-mainnet validation requirements
+### 12.1 Local / LiteSVM Validation
+
 * Define local test matrix for Axis v1
 * Define LiteSVM test matrix
-* Define mainnet-fork test matrix
 * Implement DTF market creation validation tests
 * Implement mint lifecycle integration tests
 * Implement redeem lifecycle integration tests
@@ -748,14 +761,40 @@ The following decisions remain open:
 * Implement creator fee tests
 * Implement failure case tests
 * Implement all-or-nothing execution tests
-* Validate Orca Whirlpool and Raydium CPMM production venue CPI paths
-* Measure venue CPI compute usage (per venue)
-* Measure venue CPI account usage (per venue)
-* Define guarded mainnet launch checklist
-* Document deployment source and binary traceability
+
+### 12.2 Fork / Production Venue Validation
+
+* Define mainnet-fork test matrix
+* Validate Orca Whirlpool production venue CPI path
+* Validate Raydium CPMM fallback production venue CPI path
+* Measure Orca Whirlpool CPI compute usage
+* Measure Raydium CPMM CPI compute usage
+* Measure Orca Whirlpool CPI account usage
+* Measure Raydium CPMM CPI account usage
+* Document Orca Whirlpool venue-specific risks
+* Document Raydium CPMM venue-specific risks
+
+### 12.3 App / Launch Surface Validation
+
 * Define app contract integration smoke tests
-* Define partner demo evidence requirements
+* Validate app contract integration against Axis Core create/mint/redeem flows
+* Validate launch-day secondary-market surface
+* Validate external-liquidity labels
+* Validate reserve/NAV display assumptions
+* Validate partner-facing market metadata and canonical market/share URL
+
+### 12.4 Mainnet Launch Gate
+
+* Define guarded mainnet launch checklist
 * Define mainnet launch gate checklist
-* Validate launch-day secondary-market surface and external-liquidity labels
+* Document deployment source and binary traceability
+* Define monitoring and alerting requirements
+* Define rollback or mitigation procedures
+* Record known blockers and explicitly accepted risks before launch
+
+### 12.5 Deferred / Conditional Activation
+
 * Run Orca Axis-controlled JIT liquidity technical spike
 * Define conditional production ClearCorrection readiness checklist
+* Define Axis Auction Program activation checklist
+* Define market-specific Axis-controlled JIT liquidity activation gates
