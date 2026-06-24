@@ -418,16 +418,26 @@ Public Devnet is not a required validation path.
 
 ## 8. P0 / P1 / P2 Scope
 
-### P0: Core Launch Blockers
+This section separates Axis Core implementation readiness from full mainnet launch readiness.
 
-P0 includes what must exist for Axis v1 Core to function as a minimal reserve-backed DTF protocol.
+P0 means the minimum scope required to prove that Axis Core can function as a reserve-backed DTF protocol in deterministic local and integration tests.
+
+P0 does not mean that every production venue, app surface, backend API, secondary-market surface, or auction mechanism is complete.
+
+Mainnet launch readiness has additional gates defined in `12-pre-mainnet-validation-requirements.md` and `14-production-venue-integration-requirements.md`.
+
+---
+
+### P0: Core Implementation Readiness
+
+P0 includes what must exist for Axis Core to prove a minimal reserve-backed DTF lifecycle.
 
 ```txt
 P0:
 - new `axis-core` repository
 - Rust workspace / program scaffold
-- Pinocchio / no_std Axis Core program
-- Token-2022 DTF mint candidate
+- Pinocchio / no_std Axis Core program scaffold
+- Token-2022 DTF mint candidate validation
 - ProtocolConfig concept
 - DTFMarket concept
 - reserve vault custody
@@ -438,35 +448,60 @@ P0:
 - fee accounting separated from reserve/NAV
 - asset registry / asset allowlist concept
 - pricing source concept
-- approved route concept
-- at least one validated execution path
+- ApprovedRoute concept
+- at least one validated execution path for Core accounting validation
+- controlled adapter path for local deterministic tests
 - actual balance delta verification
-- min_out protection
+- min_out / min_usdc_out protection
 - LiteSVM tests
-- Surfpool validation plan
+- Surfpool / mainnet-fork validation plan
 ```
 
-The purpose of P0 is not to complete every production venue, auction mechanism, or app experience.
+Controlled adapters are acceptable for P0 Core accounting validation.
 
-The purpose of P0 is to prove that Axis Core can function as a reserve-backed DTF mint/redeem protocol.
+Controlled adapters are not sufficient for mainnet production venue readiness.
+
+The purpose of P0 is to prove that Axis Core can safely create, mint, redeem, account for reserves, account for fees, and validate failure behavior in a controlled environment.
 
 ---
 
-### P1: Launch-preferred / Near-term Follow-up
+### Mainnet Launch Gate: Production Venue Readiness
+
+Mainnet launch readiness requires more than P0 Core validation.
+
+Before mainnet launch, Axis must validate at least two production venue integration paths:
+
+```txt
+1. Orca Whirlpool
+2. Raydium CPMM fallback
+```
+
+These production venue paths must prove that Axis Core can validate approved routes, execute real CPI swaps, move real tokens, verify actual balance deltas, enforce min_out / min_usdc_out, reject invalid venue accounts, and measure compute/account usage.
+
+---
+
+### P1: Launch-Preferred / Near-Term Follow-up
+
+P1 includes work that improves launch quality, production readiness, integration readiness, and distribution.
+
+Some P1 items may be required before public launch even if they are not required for the first P0 Core validation milestone.
 
 ```txt
 P1:
-- Raydium fallback path
-- richer route validation
+- Orca Whirlpool production venue validation
+- Raydium CPMM fallback validation
+- richer ApprovedRoute validation
+- venue-specific compute/account measurement
 - TypeScript SDK polish
 - app/backend integration docs
+- route builder integration docs
 - metadata/indexer design
-- secondary market display surface
+- secondary-market display surface
 - external pool indexing plan
 - improved analytics snapshot plan
 ```
 
-P1 items improve launch quality and distribution, but are separated from the minimal P0 Core.
+P1 should not block early scaffold, account proposal, instruction proposal, LiteSVM, Token-2022, or controlled adapter work.
 
 ---
 
@@ -486,7 +521,8 @@ P2:
 
 P2 items are important future extensions, but they should not block the first Axis Core implementation.
 
----
+Production ClearCorrection or Axis-controlled JIT liquidity becomes a requirement only for markets explicitly activated for Axis-native correction liquidity.
+
 
 ## 9. Contract Responsibilities
 
@@ -584,19 +620,39 @@ Current open questions:
 
 ```txt
 1. Which metadata extension should be used for the DTF Token-2022 mint?
-2. How much of PricingSourceRegistry should be implemented in P0?
+2. How much of PricingSourceRegistry should be implemented in P0 Core validation?
 3. Should ApprovedRoute accounts be route-based, asset-pair-based, venue-based, or pool-based?
-4. Should Orca Whirlpool be a P0 production path, or a P0 spike + P1 production path?
-5. Should Raydium CPMM fallback be P0 or P1?
-6. How should initial NAV / initial supply be determined on first mint?
-7. How should mint/redeem rounding and dust be handled?
-8. Should fee accrual be stored at the market level, or split into separate creator/protocol claim states?
+4. What is the exact boundary between controlled adapter validation and production venue CPI validation?
+5. What is the exact implementation schedule for Orca Whirlpool and Raydium CPMM fallback validation?
+6. What fixed-point representation and rounding rules should be used for NAV, supply, fees, and dust?
+7. What is the exact fee custody account layout?
+8. What are the exact fee claim instruction names and account requirements?
 9. Where should the boundary between on-chain metadata and off-chain metadata be?
-10. Should public secondary pool indexing be included in contract scope, or fully separated into backend/indexer scope?
+10. Which secondary-market indexing fields should Axis Core emit for app/backend use without making indexing part of Core protocol truth?
+11. What Surfpool / mainnet-fork setup is required for venue validation?
+```
+
+The following items are no longer open questions in this RFC:
+
+```txt
+- Axis Core should be implemented in a new `axis-core` repository
+- existing contract repositories are reference-only
+- public Devnet is not a required validation path
+- mint input is USDC
+- redeem output is USDC
+- DTFs are backed by real reserve assets
+- initial NAV is 1 USDC when total supply is zero
+- mint fee is charged on the USDC side
+- redeem fee is zero for v1
+- creator/protocol fees use claim-based accrual
+- fees must be separated from reserve/NAV accounting
+- controlled adapter tests are acceptable for P0 Core validation
+- controlled adapter tests are not sufficient for mainnet production venue readiness
+- mainnet launch readiness requires Orca Whirlpool and Raydium CPMM fallback validation
+- production ClearCorrection / Axis Auction Program activation is not a minimum August launch condition
 ```
 
 ---
-
 ## 13. Development Task Readiness
 
 This RFC is ready to be converted into development tasks once the following are true:
@@ -609,9 +665,9 @@ This RFC is ready to be converted into development tasks once the following are 
 - Engineering review items are explicit
 ```
 
-Not all account layouts or CPI details need to be finalized before development begins.
+Not all account layouts, instruction account ordering, CPI implementations, or exact math formulas need to be finalized before development begins.
 
-The following tasks can start early:
+The following tasks can start immediately after the repository scaffold exists:
 
 ```txt
 - new repository scaffold
@@ -625,80 +681,12 @@ The following tasks can start early:
 - Surfpool feasibility setup
 - account model proposal
 - instruction surface proposal
+- controlled adapter test path proposal
 ```
 
----
+These early-start tasks do not require final account layout approval.
 
-## 14. Proposed Initial Milestones
-
-### Milestone 0: Repository Scaffold
-
-```txt
-- Create `axis-core` repository
-- Set up Rust workspace
-- Add `programs/axis-core`
-- Add `crates/axis-core-client`
-- Add `crates/axis-core-test-utils`
-- Add `tests`
-- Add `sdk`
-- Add `docs`
-- Add CI for fmt/build/test
-```
-
-### Milestone 1: Core Account / Instruction Proposal
-
-```txt
-- Draft ProtocolConfig
-- Draft DTFMarket
-- Draft AssetConfig
-- Draft PricingSource
-- Draft ApprovedRoute
-- Draft fee accounting state
-- Draft instruction surface
-```
-
-### Milestone 2: Token / Vault Foundation
-
-```txt
-- Token-2022 DTF mint test
-- reserve vault creation test
-- USDC vault / intake test
-- basic mint/burn skeleton
-```
-
-### Milestone 3: Mint/Redeem Accounting
-
-```txt
-- mint with USDC skeleton
-- reserve composition accounting
-- redeem burn skeleton
-- USDC payout accounting
-- fee separation tests
-- balance delta tests
-```
-
-### Milestone 4: Venue / CPI Validation
-
-```txt
-- controlled adapter for tests
-- Orca CPI feasibility
-- Raydium compatibility review
-- Surfpool mainnet-fork validation
-- ApprovedRoute validation model
-```
-
-### Milestone 5: P0 End-to-End
-
-```txt
-- create market
-- mint DTF with USDC
-- reserve assets increase
-- DTF token issued
-- redeem DTF
-- USDC returned
-- fee accounting remains separated
-- failure cases covered
-```
+Implementation of protocol state, mint/redeem accounting, ApprovedRoute validation, and production venue CPI should follow engineering review of the relevant proposals.
 
 ---
 
@@ -706,13 +694,13 @@ The following tasks can start early:
 
 Axis v1 Core should be implemented as a clean new contract system in the new `axis-core` repository.
 
-The first phase should focus only on the on-chain reserve-backed DTF Core.
+The first implementation phase should focus on proving the on-chain reserve-backed DTF Core.
 
 The core product model is:
 
 ```txt
 USDC in
-→ approved venue execution
+→ approved execution
 → reserve assets held by program-controlled vaults
 → Token-2022 DTF token minted
 → DTF burned on redeem
@@ -720,8 +708,10 @@ USDC in
 → USDC out
 ```
 
-The current phase should avoid over-scoping into backend, database, frontend, Auction Program, ClearCorrection, or JIT liquidity.
+The current phase should avoid over-scoping into backend architecture, database schema, frontend redesign, production Auction Program, ClearCorrection, or Axis-controlled JIT liquidity.
 
 Those areas remain important, but they should not block the first Axis Core implementation.
 
-The next step is to review this RFC with engineering contributors, then convert the agreed P0 scope into implementation issues.
+This RFC is complete enough for P0 issue creation.
+
+The next step is to convert the agreed P0 scope into GitHub issues, beginning with repository scaffold, CI, LiteSVM, Token-2022 validation, account model proposal, instruction surface proposal, ApprovedRoute proposal, fee accounting proposal, and controlled adapter validation.
