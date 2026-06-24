@@ -8,6 +8,12 @@ The goal is to decide how xStocks may be included in Axis DTF markets, under wha
 
 This document is based on real-data route discovery and on-chain verification research.
 
+This document extends the Asset Universe Requirements for the StockToken / xStocks category.
+
+General asset registry fields, readiness states, pricing tiers, route readiness, and execution flags are defined in Asset Universe Requirements.
+
+This document only defines StockToken / xStocks-specific execution requirements, including Token-2022, Scaled UI amount handling, Raydium CLMM execution, pricing/NAV policy, and xStocks launch readiness gates.
+
 ## 20.2 Scope
 
 Axis v1 includes xStocks as a P0 candidate asset category.
@@ -24,6 +30,12 @@ Only explicitly enabled xStocks may be used for:
 * Secondary market display
 
 Being listed in the official xStocks asset universe does not imply Axis readiness.
+
+StockToken allocation in the Asset Universe represents candidate coverage, not launch-ready execution coverage.
+
+A StockToken may exist in the Axis asset universe while still being marked route-required, pricing-required, mint-required, or disabled.
+
+Only a smaller manually reviewed subset may become execution-enabled after passing the gates in this document.
 
 ## 20.3 Non-Goals
 
@@ -114,23 +126,35 @@ Required flags:
 * `secondary_display_enabled`
 * `route_discovery_enabled`
 
-Recommended status categories:
+General launch readiness is defined in Asset Universe Requirements.
 
-* `CANDIDATE_UNIVERSE`
-* `CLMM_SPIKE_READY`
+StockToken / xStocks may use the following category-specific sub-statuses:
+
+* `TOKEN_2022_REVIEW_REQUIRED`
+* `SCALED_UI_REVIEW_REQUIRED`
+* `CLMM_ROUTE_RESEARCH_REQUIRED`
 * `CLMM_SPIKE_CANDIDATE`
-* `ROUTE_RESEARCH_REQUIRED`
+* `CLMM_SPIKE_READY`
 * `ONE_WAY_ROUTE_ONLY`
 * `HIGH_PRICE_IMPACT`
-* `PRICING_REQUIRED`
-* `LIQUIDITY_REQUIRED`
+* `MARKET_HOURS_POLICY_REQUIRED`
 * `TOKEN_EXTENSION_REVIEW_REQUIRED`
-* `DISABLED`
-* `LAUNCH_READY`
+
+The general readiness status must remain separate from StockToken-specific sub-status.
+
+Examples:
+
+```text
+launch_readiness = SPIKE_CANDIDATE
+stocktoken_status = CLMM_SPIKE_READY
+
+launch_readiness = PRICING_REQUIRED
+stocktoken_status = MARKET_HOURS_POLICY_REQUIRED
+```
 
 No discovery script may assign `LAUNCH_READY`.
 
-`LAUNCH_READY` must require manual review and successful execution tests.
+`LAUNCH_READY` must require manual review and successful local/fork execution tests.
 
 ## 20.7 Token-2022 / Scaled UI Requirements
 
@@ -289,6 +313,8 @@ Required gates:
 24. 1-asset redeem test passed.
 25. Multi-asset atomic feasibility reviewed.
 26. Emergency disable controls exist.
+27. ApprovedRoute registered and enabled for the target route.
+28. Manual launch approval recorded.
 
 ## 20.13 Initial v1 Decision
 
@@ -305,7 +331,7 @@ Axis v1 should proceed with the following xStocks strategy:
 
 ## 20.14 Development Tasks
 
-### P0: Raydium CLMM xStocks swap simulation
+### P0-1: Raydium CLMM xStocks swap simulation
 
 Targets:
 
@@ -324,7 +350,7 @@ Test cases:
 * Account count
 * Transaction size
 
-### P0: ApprovedRoute schema for Raydium CLMM
+### P0-2: ApprovedRoute schema for Raydium CLMM
 
 Implement or specify ApprovedRoute fields for Raydium CLMM routes.
 
@@ -341,7 +367,7 @@ Required:
 * Slippage / price impact limits
 * Enable flag
 
-### P0: Axis Core balance delta validation
+### P0-3: Axis Core balance delta validation
 
 Mint side:
 
@@ -358,6 +384,8 @@ Redeem side:
 * User output equals actual USDC received.
 * Redeem fee is zero.
 * Min-out is enforced.
+
+Scaled UI amount must never be used for protocol accounting, fee accounting, mint/redeem calculation, or reserve balance delta validation.
 
 ### P1: Scaled UI display support
 
