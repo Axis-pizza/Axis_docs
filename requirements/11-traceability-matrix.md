@@ -2,23 +2,65 @@
 
 This file maps requirement areas to implementation tasks.
 
-| Requirement Area | Requirement IDs | Implementation Surface | Issue Blueprint |
-|---|---:|---|---|
-| Protocol config | AXIS-CORE, ADMIN | ProtocolConfig account | `01-protocol-config-and-registry-issues.md` |
-| Asset registry | ASSET, POLICY | AssetRegistry, AssetExecutionPolicy | `01-protocol-config-and-registry-issues.md` |
-| DTF market | DTF (incl. DTF-013..017 fee state) | DTFMarket, MarketAssetWeight, MarketFeeState, fee vault | `02-dtf-market-issues.md` |
-| Mint | MINT (incl. MINT-003..018 net fee accounting) | Mint instruction, mint fee deduction/accrual | `03-mint-redeem-issues.md` |
-| Redeem | REDEEM (incl. REDEEM-011..018 zero-fee) | Redeem instruction | `03-mint-redeem-issues.md` |
-| Swap CPI | EXEC (incl. EXEC-015..017 two-venue readiness) | ApprovedRoute, VenueAdapter, Orca Whirlpool + Raydium CPMM paths | `04-swap-cpi-adapter-issues.md` |
-| Pricing / NAV | PRICE | PricingSource, NAV calculator | `05-pricing-nav-issues.md` |
-| Fee model | FEE | ProtocolFeeConfig, MarketFeeState, fee vault, fee claim instructions | TODO: fee issue blueprint not yet created |
-| Pre-mainnet validation | PMV | Local / LiteSVM / fork tests, two-venue CPI tests, guarded launch controls | `06-testing-security-issues.md` |
-| Admin / safety | ADMIN | SetPolicy, Pause, Route updates, protocol fee config (capped) | `06-testing-security-issues.md` |
-| Testing | TEST, NFR | Unit/integration/property tests | `06-testing-security-issues.md` |
-| Secondary market | SECONDARY-001..008 | Axis-operated discovery surface, external-pool indexing and labels | TODO: secondary-market issue blueprint |
-| Axis Auction Program | AUCTION-001..019 | Proposed Auction Program, Orca JIT spike, ClearCorrection activation gates | TODO: auction-program issue blueprint |
+| Requirement Area                       |          Requirement IDs | Implementation Surface                                                                   | Issue Blueprint                               |
+| -------------------------------------- | -----------------------: | ---------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Protocol config                        |         AXIS-CORE, ADMIN | ProtocolConfig account, authority config, protocol-level settings                        | `01-protocol-config-and-registry-issues.md`   |
+| Asset registry                         |            ASSET, POLICY | AssetRegistry, AssetExecutionPolicy, asset enablement flags                              | `01-protocol-config-and-registry-issues.md`   |
+| DTF market                             |                      DTF | DTFMarket, MarketAssetWeight, reserve vaults, DTF mint                                   | `02-dtf-market-issues.md`                     |
+| Mint                                   |                     MINT | Mint instruction, USDC input, reserve composition, DTF minting, balance delta accounting | `03-mint-redeem-issues.md`                    |
+| Redeem                                 |                   REDEEM | Redeem instruction, DTF burn, reserve unwind, USDC output, min_usdc_out                  | `03-mint-redeem-issues.md`                    |
+| Swap CPI execution                     |                     EXEC | ApprovedRoute, VenueAdapter, controlled adapter, production venue adapters               | `04-swap-cpi-adapter-issues.md`               |
+| Pricing / NAV                          |                    PRICE | PricingSource, NAV calculator, reserve value calculation                                 | `05-pricing-nav-issues.md`                    |
+| Fee model                              |                      FEE | ProtocolFeeConfig, MarketFeeState, fee vault, creator/protocol claim instructions        | `07-fee-accounting-issues.md`                 |
+| Pre-mainnet validation                 |                      PMV | Local tests, LiteSVM tests, fork tests, venue CPI tests, guarded launch controls         | `06-testing-security-issues.md`               |
+| Admin / safety                         |                    ADMIN | SetPolicy, Pause, route updates, asset disable, emergency controls                       | `06-testing-security-issues.md`               |
+| Testing / non-functional requirements  |                TEST, NFR | Unit tests, integration tests, failure tests, compute/account measurements               | `06-testing-security-issues.md`               |
+| Production venue integration           |              VENUE, EXEC | Orca Whirlpool, Raydium CPMM fallback, venue-specific validation evidence                | `04-swap-cpi-adapter-issues.md`               |
+| App contract interface                 |                      APP | App/client read model, transaction construction inputs, contract state integration       | `08-app-contract-interface-issues.md`         |
+| Route builder backend API              |         APP, EXEC, PRICE | Route plan API, quote freshness, ApprovedRoute references, account assembly              | `09-route-builder-api-issues.md`              |
+| Mainnet launch gate                    | MAINNET, PMV, ADMIN, NFR | Launch checklist, deployment traceability, guarded controls, accepted risk log           | `10-mainnet-launch-gate-issues.md`            |
+| Partner demo / BD readiness            |       BD, PMV, SECONDARY | Contract evidence, partner demo flows, canonical market URL, integration narrative       | `11-partner-demo-readiness-issues.md`         |
+| Secondary market                       |       SECONDARY-001..008 | Axis-operated discovery surface, external-pool indexing, external-liquidity labels       | `12-secondary-market-surface-issues.md`       |
+| Axis Auction Program / ClearCorrection |         AUCTION-001..019 | Proposed Auction Program, Orca JIT spike, ClearCorrection activation gates               | `13-auction-clear-correction-spike-issues.md` |
 
-TODO: requirement areas referenced in `00-requirements-overview.md §5` (VENUE-*, APP-*, BD-*, MAINNET-*) do not yet have dedicated requirement docs or matrix rows. VENUE/MAINNET concerns currently live inside `05` (EXEC-*) and `12` (PMV-*). Add dedicated rows if/when standalone docs are created — do not invent IDs.
+Notes:
+
+* `07-fee-accounting-issues.md` is a P0 issue blueprint because creator/protocol fee accounting is required from Axis v1 launch.
+* `08-app-contract-interface-issues.md`, `09-route-builder-api-issues.md`, and `10-mainnet-launch-gate-issues.md` may be created after the first Axis Core scaffold issues, but they should remain traceable from this matrix.
+* `12-secondary-market-surface-issues.md` is required for launch-day product readiness, but it is not part of Axis Core reserve custody or mint/redeem accounting.
+* `13-auction-clear-correction-spike-issues.md` is a deferred / conditional activation blueprint. It is not a blocker for Axis Core P0 implementation or the minimum August launch gate unless Axis explicitly activates Axis-controlled JIT liquidity for a market.
+
+## Deferred and Conditional Scope Notes
+
+Axis Core P0 implementation should focus on reserve-backed DTF creation, mint, redeem, accounting, fees, policy validation, route validation, and testability.
+
+Secondary-market surface requirements are launch-day product requirements, but external DTF/USDC pools are not Axis Core reserve custody, NAV, or mint/redeem accounting.
+
+Axis Auction Program and ClearCorrection requirements are architectural compatibility and technical-spike requirements unless a market is explicitly activated for Axis-controlled JIT liquidity.
+
+Therefore:
+
+```txt
+Axis Core P0:
+- create / mint / redeem
+- reserves / NAV / accounting
+- fees
+- asset policy
+- ApprovedRoute validation
+- controlled adapter tests
+- production venue validation path
+
+Launch-day product readiness:
+- secondary-market surface
+- external-liquidity labels
+- partner-facing market metadata
+
+Deferred / conditional activation:
+- Axis Auction Program
+- ClearCorrection
+- Axis-controlled JIT liquidity
+```
+
 
 ## Secondary Market and Auction Traceability
 
