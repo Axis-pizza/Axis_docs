@@ -333,22 +333,68 @@ Axis v1 should proceed with the following xStocks strategy:
 
 ### P0-1: Raydium CLMM xStocks swap simulation
 
+Purpose:
+Validate whether SPCXx and STRCx can be safely swapped through Raydium CLMM before integrating the route into Axis Core mint/redeem.
+
+Scope:
+This task validates direct Raydium CLMM swap feasibility.
+It does not require full Axis Core mint/redeem integration.
+
 Targets:
+- SPCXx / USDC
+- STRCx / USDC
 
-* SPCXx / USDC
-* STRCx / USDC
+Required environment:
+- local validator or mainnet-fork environment
+- cloned Raydium CLMM pool accounts
+- cloned pool config
+- cloned observation account
+- cloned tick arrays
+- cloned vaults
+- xStock Token-2022 mint
+- USDC legacy SPL mint
 
-Test cases:
+Required test cases:
+- 10 USDC -> xStock
+- xStock -> USDC
+- min_out success
+- min_out failure
+- actual raw balance delta verification
+- Token-2022 xStock transfer
+- legacy SPL USDC transfer
+- compute unit measurement
+- account count measurement
+- serialized transaction size measurement
 
-* 10 USDC -> xStock
-* xStock -> USDC
-* Min-out behavior
-* Actual balance delta verification
-* Token-2022 xStock transfer
-* Legacy USDC transfer
-* Compute units
-* Account count
-* Transaction size
+Pass criteria:
+- swap simulation succeeds in both directions
+- output amount is >= min_out
+- transaction fails when min_out is intentionally too high
+- input/output raw token balance deltas match actual transfer results
+- xStock uses Token-2022
+- USDC uses legacy SPL Token
+- pool vault balances change in the expected direction
+- compute units are recorded
+- account count is recorded
+- transaction size is recorded
+
+Required output:
+- asset symbol
+- xStock mint
+- USDC mint
+- pool id
+- pool config
+- observation account
+- tick arrays used
+- direction
+- input raw amount
+- actual output raw amount
+- min_out
+- compute units
+- account count
+- transaction size
+- pass/fail
+- failure reason if failed
 
 ### P0-2: ApprovedRoute schema for Raydium CLMM
 
